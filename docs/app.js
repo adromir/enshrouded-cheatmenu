@@ -75,6 +75,8 @@
     return { text: 'Personal', class: 'personal' };
   }
 
+  let expandedCategories = new Set(); // Empty by default -> all categories start collapsed
+
   // Render All Categories and Settings
   function renderCategories() {
     if (!container || !baseData.groups) return;
@@ -95,7 +97,8 @@
       if (matchingKeys.length === 0) return;
 
       const groupEl = document.createElement('div');
-      groupEl.className = 'category-group';
+      const isExpanded = query ? true : expandedCategories.has(groupIdx);
+      groupEl.className = `category-group ${isExpanded ? '' : 'collapsed'}`;
       groupEl.id = `group-${groupIdx}`;
 
       // Count modified items in this group
@@ -114,7 +117,14 @@
       `;
 
       header.addEventListener('click', () => {
-        groupEl.classList.toggle('collapsed');
+        if (expandedCategories.has(groupIdx)) {
+          expandedCategories.delete(groupIdx);
+          groupEl.classList.add('collapsed');
+        } else {
+          expandedCategories.add(groupIdx);
+          groupEl.classList.remove('collapsed');
+        }
+        updateExpandAllButtonText();
       });
 
       // Description
@@ -413,24 +423,34 @@
     });
   }
 
+  function updateExpandAllButtonText() {
+    if (!expandAllBtn) return;
+    const totalGroups = baseData.groups ? baseData.groups.length : 0;
+    const isAllExpanded = totalGroups > 0 && expandedCategories.size === totalGroups;
+    expandAllBtn.innerHTML = isAllExpanded ? '<span>⊟</span> Collapse All' : '<span>⊞</span> Expand All';
+  }
+
   // Expand / Collapse All
-  let allCollapsed = false;
   if (expandAllBtn) {
     expandAllBtn.addEventListener('click', () => {
-      allCollapsed = !allCollapsed;
-      document.querySelectorAll('.category-group').forEach(group => {
-        if (allCollapsed) {
-          group.classList.add('collapsed');
-        } else {
-          group.classList.remove('collapsed');
+      const totalGroups = baseData.groups ? baseData.groups.length : 0;
+      if (expandedCategories.size === totalGroups) {
+        // Collapse all
+        expandedCategories.clear();
+      } else {
+        // Expand all
+        for (let i = 0; i < totalGroups; i++) {
+          expandedCategories.add(i);
         }
-      });
-      expandAllBtn.innerHTML = allCollapsed ? '<span>⊞</span> Expand All' : '<span>⊟</span> Collapse All';
+      }
+      renderCategories();
+      updateExpandAllButtonText();
     });
   }
 
   // Initialize
   renderPresets();
   renderCategories();
+  updateExpandAllButtonText();
   updateUI();
 })();
