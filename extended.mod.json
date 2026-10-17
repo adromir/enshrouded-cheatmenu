@@ -1,0 +1,687 @@
+{
+  "$schema": "https://bonsaibauer.github.io/shroudforge/schemas/extended.mod.schema.json",
+  "schemaVersion": 1,
+  "enabled": true,
+  "targets": [
+    "client",
+    "server"
+  ],
+  "links": {
+    "source-github": "https://github.com/adromir/enshrouded-cheatmenu"
+  },
+  "changelog": [
+    "v2.0.0: Major Expansion. Added 15+ new features across 5 domains: Base Building (10x Altar Radius, Unlimited Altars, Free Building Blocks, No Stability limits), Item Spawner & Blacksmith Upgrader (in-game item creation catalog, 0-rune upgrades, max perks), Combat Mechanics (Infinite Arrows, Instant Bow Draw, Rapid Wand Spells, Unlimited Grappling Hook, One-Hit Kill), Exploration & Vision (Clear Shroud Fog Vision, Teleport to Map Marker, Saved Waypoint Teleporter, Reveal All Map Icons), and Progression (Free Skill Respec Anywhere, Unlock All Recipes, Free Flame Upgrades, Red Shroud Immunity).",
+    "v1.3.0: Added Building Fly Mode, Infinite Gliding, Jump Height, Walking Speed, Slope Mountain Walking, Dragged Item Quantity, and Fog of War Reveal Multiplier.",
+    "v1.2.0: Implemented hybrid client-server architecture with server-authoritative world rules and client-controlled personal cheats.",
+    "v1.1.0: Full user configurability with adjustable sliders and exact value limits.",
+    "v1.0.0: Initial release of SF Cheat Menu & Server Tweaks."
+  ],
+  "settings": {
+    "infiniteHealth": {
+      "value": false,
+      "label": "Infinite Health / God Mode (Personal)",
+      "description": "Clamps Health_Min to current Health_Max for your character. You become immune to lethal damage.",
+      "control": "checkbox"
+    },
+    "healthRegenMultiplier": {
+      "value": 1,
+      "label": "Health Regen Multiplier (Personal)",
+      "description": "Multiplies natural health regeneration rate for your character (1x = standard, up to 500x).",
+      "control": "slider",
+      "min": 1,
+      "max": 500,
+      "step": 5
+    },
+    "infiniteStamina": {
+      "value": false,
+      "label": "Infinite Stamina (Personal)",
+      "description": "Locks stamina at maximum. Disables stamina drain for sprinting, fighting, and climbing.",
+      "control": "checkbox"
+    },
+    "staminaRegenMultiplier": {
+      "value": 1,
+      "label": "Stamina Regen Multiplier (Personal)",
+      "description": "Multiplies natural stamina regeneration rate (1x = standard, up to 500x).",
+      "control": "slider",
+      "min": 1,
+      "max": 500,
+      "step": 5
+    },
+    "infiniteMana": {
+      "value": false,
+      "label": "Infinite Mana (Personal)",
+      "description": "Locks mana at maximum. Spells and abilities consume zero mana.",
+      "control": "checkbox"
+    },
+    "manaRegenMultiplier": {
+      "value": 1,
+      "label": "Mana Regen Multiplier (Personal)",
+      "description": "Multiplies natural mana regeneration rate (1x = standard, up to 500x).",
+      "control": "slider",
+      "min": 1,
+      "max": 500,
+      "step": 5
+    },
+    "freezeShroudTimer": {
+      "value": false,
+      "label": "Freeze Shroud Timer (Personal / World)",
+      "description": "Halts the Miasma/Shroud timer for unlimited exploration inside the shroud.",
+      "control": "checkbox"
+    },
+    "shroudTimeMultiplier": {
+      "value": 1,
+      "label": "Shroud Time Multiplier",
+      "description": "Multiplies allowable shroud timer duration via shroudTimeFactor (1x = standard, up to 100x).",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "redShroudImmunity": {
+      "value": false,
+      "label": "Red Shroud Immunity / Deadly Miasma Passage (Personal)",
+      "description": "Grants complete immunity against deadly red lethal shroud zones, allowing exploration everywhere regardless of flame level.",
+      "control": "checkbox"
+    },
+    "maxComfort": {
+      "value": false,
+      "label": "Max Comfort Level (Personal)",
+      "description": "Locks comfort to maximum value for the longest possible rested duration.",
+      "control": "checkbox"
+    },
+    "customComfortLevel": {
+      "value": 0,
+      "label": "Custom Comfort Level (Personal)",
+      "description": "Sets a custom comfort level (0 = original world comfort, up to 100 max).",
+      "control": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    "noHypothermia": {
+      "value": false,
+      "label": "No Hypothermia / Cold Immunity (Personal)",
+      "description": "Maintains body heat at maximum; eliminates freezing in cold or snowy biomes.",
+      "control": "checkbox"
+    },
+    "infiniteOxygen": {
+      "value": false,
+      "label": "Infinite Oxygen / Diving Breath (Personal)",
+      "description": "Maintains oxygen reserve at maximum; prevents drowning while diving.",
+      "control": "checkbox"
+    },
+    "infiniteFocus": {
+      "value": false,
+      "label": "Infinite Focus (Personal)",
+      "description": "Keeps focus resource full for special combat abilities and spells.",
+      "control": "checkbox"
+    },
+    "critChance": {
+      "value": 0,
+      "label": "Critical Hit Chance % (Personal)",
+      "description": "Additional critical hit chance percentage (0% to 100% max).",
+      "control": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    "critDamageMultiplier": {
+      "value": 100,
+      "label": "Critical Damage % (Personal)",
+      "description": "Multiplier for critical strike damage (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "meleeDamageMultiplier": {
+      "value": 100,
+      "label": "Melee Damage % (Personal)",
+      "description": "Multiplier for melee weapon attacks (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "rangedDamageMultiplier": {
+      "value": 100,
+      "label": "Ranged Damage % (Personal)",
+      "description": "Multiplier for bows and thrown weapons (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "magicDamageMultiplier": {
+      "value": 100,
+      "label": "Magic Damage % (Personal)",
+      "description": "Multiplier for staves, wands, and spells (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "oneHitKill": {
+      "value": false,
+      "label": "One-Hit Kill / Infinite Attack Damage (Personal)",
+      "description": "Deals lethal infinite damage on any enemy or boss hit, instantly defeating them.",
+      "control": "checkbox"
+    },
+    "personalZeroThreat": {
+      "value": false,
+      "label": "Enemies Ignore Me / Zero Threat (Personal)",
+      "description": "Individual stealth: zeroes your personal threat so enemies ignore you without affecting teammates.",
+      "control": "checkbox"
+    },
+    "infiniteArrows": {
+      "value": false,
+      "label": "Infinite Arrows & Ammo (Personal)",
+      "description": "Shooting bows and projectile weapons consumes zero arrows and ammo from your inventory.",
+      "control": "checkbox"
+    },
+    "instantBowDraw": {
+      "value": false,
+      "label": "Instant Bow Draw & Rapid Fire (Personal)",
+      "description": "Eliminates bow draw and arrow charge time for instantaneous, rapid-fire archery.",
+      "control": "checkbox"
+    },
+    "rapidWandCadence": {
+      "value": false,
+      "label": "Rapid Wand & Staff Attack Cadence (Personal)",
+      "description": "Removes spellcasting cooldown and attack recovery delay for machine-gun wand and staff fire.",
+      "control": "checkbox"
+    },
+    "buildFlyMode": {
+      "value": false,
+      "label": "Building Fly Mode (Zero Gravity & Hover)",
+      "description": "Disables gravity and allows floating/flying in mid-air at any height for effortless building.",
+      "control": "checkbox"
+    },
+    "unlimitedGliding": {
+      "value": false,
+      "label": "Infinite Gliding (Unlimited Flight)",
+      "description": "Disables glider stamina drain and eliminates downward sink rate for unlimited flight.",
+      "control": "checkbox"
+    },
+    "jumpHeightMultiplier": {
+      "value": 100,
+      "label": "Jump Height % (Personal)",
+      "description": "Multiplier for jump height and distance (100% = default, up to 1000% super jump).",
+      "control": "slider",
+      "min": 100,
+      "max": 1000,
+      "step": 25
+    },
+    "movementSpeedMultiplier": {
+      "value": 100,
+      "label": "Movement Speed % (Walking & Running)",
+      "description": "Multiplier for walking, running, and sprinting speed (100% = normal, up to 500%).",
+      "control": "slider",
+      "min": 100,
+      "max": 500,
+      "step": 10
+    },
+    "slopeWalking": {
+      "value": false,
+      "label": "Slope Walking (Climb Steep Mountains)",
+      "description": "Increases max walkable slope angle to 89 degrees and disables sliding down steep mountain cliffs.",
+      "control": "checkbox"
+    },
+    "unlimitedGrapplingHook": {
+      "value": false,
+      "label": "Unlimited Grappling Hook Range & Stamina (Personal)",
+      "description": "Expands grappling hook latch distance to ultra-long ranges and removes grapple stamina consumption.",
+      "control": "checkbox"
+    },
+    "teleportMapMarker": {
+      "value": false,
+      "label": "Teleport to Map Marker / Pin (Personal)",
+      "description": "Instantly teleports your character to your active custom waypoint marker pin placed on the map.",
+      "control": "checkbox"
+    },
+    "saveWaypointSlot1": {
+      "value": false,
+      "label": "Save Current Position as Waypoint (Slot 1)",
+      "description": "Saves your current 3D world coordinates (X, Y, Z) into Waypoint Slot 1.",
+      "control": "checkbox"
+    },
+    "teleportWaypointSlot1": {
+      "value": false,
+      "label": "Teleport to Saved Waypoint (Slot 1)",
+      "description": "Teleports your character directly back to the coordinates saved in Waypoint Slot 1.",
+      "control": "checkbox"
+    },
+    "altarRadiusMultiplier": {
+      "value": 1,
+      "label": "Flame Altar Build Radius Multiplier (World/Server)",
+      "description": "Multiplies the protected building boundary radius of all Flame Altars (1x up to 10x / up to 500m).",
+      "control": "slider",
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    "unlimitedFlameAltars": {
+      "value": false,
+      "label": "Unlimited Flame Altars Placement (World/Server)",
+      "description": "Removes the altar placement cap, allowing an unlimited number of Flame Altars world-wide.",
+      "control": "checkbox"
+    },
+    "freeBuildingBlocks": {
+      "value": false,
+      "label": "Free Building Blocks (Hammer Consumes 0 Materials)",
+      "description": "Placing walls, roofs, terrain shapes, and props with the Construction Hammer consumes zero blocks and materials.",
+      "control": "checkbox"
+    },
+    "ignoreStructuralStability": {
+      "value": false,
+      "label": "Ignore Structural Stability / Unrestricted Placement",
+      "description": "Disables structural integrity checks, allowing floating structures, steep overhangs, and clipping placement.",
+      "control": "checkbox"
+    },
+    "freeFlameUpgrades": {
+      "value": false,
+      "label": "Free Flame Altar Upgrades (World/Server)",
+      "description": "Upgrading the Flame Altar requires zero Sparks, Shroud Cores, or trophy materials.",
+      "control": "checkbox"
+    },
+    "infiniteDurability": {
+      "value": false,
+      "label": "Infinite Item Durability (World/Server)",
+      "description": "Disables durability loss for all weapons, tools, and armor world-wide.",
+      "control": "checkbox"
+    },
+    "freeCrafting": {
+      "value": false,
+      "label": "Free Crafting (Server-Controlled)",
+      "description": "Allows crafting all recipes at workbenches and stations without requiring materials.",
+      "control": "checkbox"
+    },
+    "unlockAllRecipes": {
+      "value": false,
+      "label": "Unlock All Crafting Blueprints & Recipes (World/Server)",
+      "description": "Unlocks every crafting recipe, workbench blueprint, furniture piece, and equipment schematic in the game.",
+      "control": "checkbox"
+    },
+    "itemAmountMultiplier": {
+      "value": 1,
+      "label": "Item Drop & Yield Multiplier (World/Server)",
+      "description": "Multiplies item quantities dropped from harvesting, mining, and enemies (1x to 100x).",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "stackSizeMode": {
+      "value": "multiplier",
+      "label": "Stack Size Mode (World/Server)",
+      "description": "Universal stack size mode: dynamic multiplier, custom fixed size, or 32,767 max preset.",
+      "control": "select",
+      "options": {
+        "multiplier": "Multiplier Mode (x Scale)",
+        "custom": "Custom Fixed Stack Size",
+        "max": "Maximum Engine Limit (32,767)"
+      }
+    },
+    "stackSizeMultiplier": {
+      "value": 1,
+      "label": "Stack Size Multiplier (World/Server)",
+      "description": "Multiplies the max stack size of all items (1x = default, up to 100x).",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "customStackSize": {
+      "value": 1000,
+      "label": "Custom Stack Size (World/Server)",
+      "description": "Sets the stack size for all items to this exact value (up to 32,767 max safe limit).",
+      "control": "slider",
+      "min": 10,
+      "max": 32767,
+      "step": 50
+    },
+    "editItemQuantity": {
+      "value": false,
+      "label": "Enable Dragged Item Quantity Override",
+      "description": "Applies a custom stack quantity when dragging, splitting, or transferring items in your inventory.",
+      "control": "checkbox"
+    },
+    "customItemQuantity": {
+      "value": 100,
+      "label": "Dragged Item Quantity",
+      "description": "Desired stack amount applied when dragging or splitting items (1 to 32,767).",
+      "control": "slider",
+      "min": 1,
+      "max": 32767,
+      "step": 10
+    },
+    "enableCustomInventory": {
+      "value": false,
+      "label": "Enable Custom Backpack Slots (Personal)",
+      "description": "Activates custom player backpack storage capacity without altering quickbars.",
+      "control": "checkbox"
+    },
+    "customInventorySlots": {
+      "value": 64,
+      "label": "Backpack Storage Slots (Personal)",
+      "description": "Number of available backpack storage slots (16 to 96 slots, 8 slots per row).",
+      "control": "slider",
+      "min": 16,
+      "max": 96,
+      "step": 8
+    },
+    "enableCustomContainer": {
+      "value": false,
+      "label": "Enable Custom Chest Slots (World/Server)",
+      "description": "Activates custom storage slot capacity for all placed and spawned chests/boxes.",
+      "control": "checkbox"
+    },
+    "customContainerSlots": {
+      "value": 64,
+      "label": "Chest / Container Storage Slots (World/Server)",
+      "description": "Number of storage slots for chests and boxes (16 to 96 slots, 8 slots per row).",
+      "control": "slider",
+      "min": 16,
+      "max": 96,
+      "step": 8
+    },
+    "freeWeaponUpgrades": {
+      "value": false,
+      "label": "Free Blacksmith Weapon Upgrades / 0 Runes (World/Server)",
+      "description": "Enhancing and upgrading weapons at the Blacksmith costs zero Runes.",
+      "control": "checkbox"
+    },
+    "maxWeaponPerks": {
+      "value": false,
+      "label": "Instant Max Weapon Level & Perks (Personal/World)",
+      "description": "Unlocks all weapon bonus perks and enchantment nodes to maximum level upon acquisition.",
+      "control": "checkbox"
+    },
+    "itemSpawnerCategory": {
+      "value": "resources",
+      "label": "Item Spawner Category",
+      "description": "Category of items to select and spawn directly into your backpack.",
+      "control": "select",
+      "options": {
+        "resources": "Crafting Materials & Ores",
+        "weapons": "Legendary Weapons & Staves",
+        "armor": "Armor Sets & Shields",
+        "consumables": "Potions, Elixirs & Food",
+        "blocks": "Building Blocks & Terrain",
+        "quest": "Sparks, Runes & Shroud Cores"
+      }
+    },
+    "itemSpawnerItem": {
+      "value": "shroud_core",
+      "label": "Item Spawner Selection",
+      "description": "Item template to generate into inventory.",
+      "control": "select",
+      "options": {
+        "shroud_core": "Shroud Core",
+        "spark": "Spark (Flame Altar)",
+        "runes": "Runes (Enhancement)",
+        "flax": "Flax / Linen",
+        "copper_bar": "Copper Bar",
+        "iron_bar": "Iron Bar",
+        "tin_bar": "Tin Bar",
+        "obsidian_bar": "Obsidian / Sun Temple Bar",
+        "fossilized_bone": "Fossilized Bone",
+        "legendary_sword": "Nova Legendary Sword",
+        "legendary_bow": "Shadowbane Legendary Bow",
+        "legendary_wand": "Igniter Fire Wand",
+        "healing_potion_greater": "Greater Healing Potion",
+        "elixir_of_strength": "Elixir of Strength",
+        "rough_stone_block": "Weathered Stone Block",
+        "castle_wall_block": "Castle Wall Block"
+      }
+    },
+    "itemSpawnerAmount": {
+      "value": 100,
+      "label": "Item Spawner Amount",
+      "description": "Quantity of the selected item to generate into your backpack.",
+      "control": "slider",
+      "min": 1,
+      "max": 32767,
+      "step": 10
+    },
+    "triggerItemSpawn": {
+      "value": false,
+      "label": "Spawn Selected Item Now",
+      "description": "Toggle on to generate the specified quantity into your inventory (automatically resets).",
+      "control": "checkbox"
+    },
+    "xpMultiplier": {
+      "value": 1,
+      "label": "Experience (XP) Multiplier (World/Server)",
+      "description": "Multiplies XP earned from combat, quests, and mining (1x = default, up to 100x).",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "infiniteSkillPoints": {
+      "value": false,
+      "label": "Free Skill Tree Unlocks (Server/Host)",
+      "description": "Sets skill point cost of all nodes in the skill tree to 0 for instant learning.",
+      "control": "checkbox"
+    },
+    "freeRespecAnywhere": {
+      "value": false,
+      "label": "Free Skill Respec Anywhere / 0 Runes (Personal)",
+      "description": "Allows resetting your skill tree anytime, anywhere directly from the character menu without an altar, costing 0 runes.",
+      "control": "checkbox"
+    },
+    "dumbEnemies": {
+      "value": false,
+      "label": "Pacify World Enemies (Server/Host AI)",
+      "description": "World-wide pacification: enemies will not initiate attacks and are completely pacified.",
+      "control": "checkbox"
+    },
+    "enemyPerceptionMultiplier": {
+      "value": 100,
+      "label": "Enemy Perception Range % (World/Server)",
+      "description": "Detection and sight range of enemies (100% = normal, 0% = completely blind).",
+      "control": "slider",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    "enemyDamageMultiplier": {
+      "value": 100,
+      "label": "Enemy Damage % (World/Server)",
+      "description": "Scales outgoing damage from all enemies (100% = default, 0% = zero damage).",
+      "control": "slider",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    "freezeTimeOfDay": {
+      "value": false,
+      "label": "Freeze Time of Day (World/Server)",
+      "description": "Halts the day-night cycle progression at the current time.",
+      "control": "checkbox"
+    },
+    "gameSpeed": {
+      "value": 100,
+      "label": "Game Speed % (World/Server)",
+      "description": "Game engine speed timescale (50% slow-mo to 300% fast-forward).",
+      "control": "slider",
+      "min": 50,
+      "max": 300,
+      "step": 5
+    },
+    "productionSpeedMultiplier": {
+      "value": 1,
+      "label": "Production Station Speed (World/Server)",
+      "description": "Speed multiplier for furnaces, kilns, drying racks, and workbenches (1x to 50x).",
+      "control": "slider",
+      "min": 1,
+      "max": 50,
+      "step": 1
+    },
+    "plantGrowthMultiplier": {
+      "value": 1,
+      "label": "Plant & Crop Growth Speed (World/Server)",
+      "description": "Speed multiplier for seedlings, farm plots, and tree growth (1x to 50x).",
+      "control": "slider",
+      "min": 1,
+      "max": 50,
+      "step": 1
+    },
+    "clearShroudVision": {
+      "value": false,
+      "label": "Clear Shroud Vision (Disable Blinding Fog)",
+      "description": "Eliminates thick, blinding volumetric fog inside the Shroud for crystal clear panoramic vision.",
+      "control": "checkbox"
+    },
+    "revealAllMapIcons": {
+      "value": false,
+      "label": "Reveal All Map Icons / Shrines & Spires",
+      "description": "Unveils all Flame Shrines, Spires, Elixir Wells, Obelisks, and points of interest across the entire map.",
+      "control": "checkbox"
+    },
+    "fogOfWarDiscoveryRange": {
+      "value": 1,
+      "label": "Fog of War Reveal Multiplier (Minimap Radar)",
+      "description": "Dramatically expands map discovery radius (1x to 50x), instantly unveiling the world map and radar as you travel.",
+      "control": "slider",
+      "min": 1,
+      "max": 50,
+      "step": 1
+    },
+    "hudMinimapRadar": {
+      "value": false,
+      "label": "Enhanced Compass Radar & Landmark Reveal",
+      "description": "Expands HUD compass detection radius to maximum, revealing all nearby points of interest and landmarks.",
+      "control": "checkbox"
+    },
+    "teleportKeyLocations": {
+      "value": false,
+      "label": "Key Location Fast Travel (Personal)",
+      "description": "Unlocks direct fast travel and teleportation assistance to points of interest.",
+      "control": "checkbox"
+    }
+  },
+  "groups": [
+    {
+      "label": "Personal Player Attributes & Defense",
+      "description": "Individual client cheats toggled per player without affecting other server participants.",
+      "settings": [
+        "infiniteHealth",
+        "healthRegenMultiplier",
+        "infiniteStamina",
+        "staminaRegenMultiplier",
+        "infiniteMana",
+        "manaRegenMultiplier",
+        "freezeShroudTimer",
+        "redShroudImmunity",
+        "maxComfort",
+        "customComfortLevel",
+        "noHypothermia",
+        "infiniteOxygen",
+        "infiniteFocus",
+        "personalZeroThreat",
+        "enableCustomInventory",
+        "customInventorySlots"
+      ]
+    },
+    {
+      "label": "Combat, Archery & Magic Spells",
+      "description": "Damage amplifiers, one-hit kill, infinite arrows, instant bow draw, and machine-gun wand spellcasting.",
+      "settings": [
+        "critChance",
+        "critDamageMultiplier",
+        "meleeDamageMultiplier",
+        "rangedDamageMultiplier",
+        "magicDamageMultiplier",
+        "oneHitKill",
+        "infiniteArrows",
+        "instantBowDraw",
+        "rapidWandCadence"
+      ]
+    },
+    {
+      "label": "Movement, Flight & Navigation",
+      "description": "Building fly mode, unlimited glider flight, jump height, movement speed, slope climbing, and grappling hook.",
+      "settings": [
+        "buildFlyMode",
+        "unlimitedGliding",
+        "jumpHeightMultiplier",
+        "movementSpeedMultiplier",
+        "slopeWalking",
+        "unlimitedGrapplingHook",
+        "teleportMapMarker",
+        "saveWaypointSlot1",
+        "teleportWaypointSlot1",
+        "teleportKeyLocations"
+      ]
+    },
+    {
+      "label": "Base Building & Construction",
+      "description": "Flame Altar radius multiplier up to 10x (500m), unlimited altars, free building blocks, and zero stability limits.",
+      "settings": [
+        "altarRadiusMultiplier",
+        "unlimitedFlameAltars",
+        "freeBuildingBlocks",
+        "ignoreStructuralStability",
+        "freeFlameUpgrades"
+      ]
+    },
+    {
+      "label": "Inventory, Stacks & Item Spawner",
+      "description": "Universal stack sizes, custom chest slots, infinite durability, free crafting, item quantity editor, and in-game item spawner.",
+      "settings": [
+        "infiniteDurability",
+        "freeCrafting",
+        "unlockAllRecipes",
+        "itemAmountMultiplier",
+        "stackSizeMode",
+        "stackSizeMultiplier",
+        "customStackSize",
+        "editItemQuantity",
+        "customItemQuantity",
+        "enableCustomContainer",
+        "customContainerSlots",
+        "freeWeaponUpgrades",
+        "maxWeaponPerks",
+        "itemSpawnerCategory",
+        "itemSpawnerItem",
+        "itemSpawnerAmount",
+        "triggerItemSpawn"
+      ]
+    },
+    {
+      "label": "World, Server & Economy Rules",
+      "description": "Authoritative dedicated server rules synchronizing XP, free respec, and shroud multipliers.",
+      "settings": [
+        "xpMultiplier",
+        "infiniteSkillPoints",
+        "freeRespecAnywhere",
+        "shroudTimeMultiplier"
+      ]
+    },
+    {
+      "label": "World Enemy AI & Difficulty",
+      "description": "Server-wide control over monster aggressiveness, detection range, and damage output.",
+      "settings": [
+        "dumbEnemies",
+        "enemyPerceptionMultiplier",
+        "enemyDamageMultiplier"
+      ]
+    },
+    {
+      "label": "World Time, Radar & Exploration Vision",
+      "description": "Day/night freezing, timescale, clear shroud vision, reveal all map icons, and minimap radar reveal.",
+      "settings": [
+        "freezeTimeOfDay",
+        "gameSpeed",
+        "productionSpeedMultiplier",
+        "plantGrowthMultiplier",
+        "clearShroudVision",
+        "revealAllMapIcons",
+        "fogOfWarDiscoveryRange",
+        "hudMinimapRadar"
+      ]
+    }
+  ]
+}

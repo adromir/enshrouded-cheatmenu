@@ -1,0 +1,5 @@
+MEMORY.md
+PROJECT_CONTEXT.md
+*.tmp
+temp/
+scratch/
