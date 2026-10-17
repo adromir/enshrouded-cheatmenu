@@ -3,6 +3,7 @@
 [![Game: Enshrouded](https://img.shields.io/badge/Game-Enshrouded-d97706.svg)](https://store.steampowered.com/app/1203630/Enshrouded/)
 [![Mod Loader: ShroudForge](https://img.shields.io/badge/Mod%20Loader-ShroudForge-854d0e.svg)](https://github.com/bonsaibauer/shroudforge)
 [![Targets: Client & Server](https://img.shields.io/badge/Targets-Client%20%26%20Dedicated%20Server-22c55e.svg)](#installation)
+[![Web Configurator: Live](https://img.shields.io/badge/Web%20Configurator-Live%20Editor-ff7a18.svg)](https://adromir.github.io/enshrouded-cheatmenu/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Author: Adromir](https://img.shields.io/badge/Author-Adromir-6366f1.svg)](https://github.com/adromir)
 
@@ -11,6 +12,10 @@ A feature-complete, modular cheat and quality-of-life mod for **Enshrouded**, de
 It brings all trainer capabilities (such as those popular in WeMod) natively and safely into the game engine with **complete, synchronized support for Dedicated Servers (Windows & Linux/Proton Docker) as well as Singleplayer/Local Co-op**.
 
 Instead of forced hardcoded values, all parameters are **fully customizable through interactive sliders and number inputs**, with strict adherence to Enshrouded's internal engine data types and safe maximum boundaries.
+
+> 🌐 **Interactive Web Configurator Available:**  
+> Create, edit, and export your custom `extended.mod.json` visually in your browser with real-time JSON preview, one-click presets, and direct download:  
+> 👉 **[Open Live Web Configurator](https://adromir.github.io/enshrouded-cheatmenu/)**
 
 ---
 

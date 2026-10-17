@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SF Cheat Menu & Server Tweaks - Interactive Configurator</title>
+  <meta name="description" content="Interactive extended.mod.json creator and visual configuration editor for Enshrouded ShroudForge mod loader.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><rect width='128' height='128' rx='28' fill='%231e1b18'/><path d='M64 26 C72 38 82 48 82 62 C82 78 70 88 64 88 C58 88 46 78 46 62 Z' fill='%23ff8c2b'/></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="header-container">
+      <div class="brand-wrapper">
+        <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+          <defs>
+            <linearGradient id="h-bg" x1="10" y1="10" x2="118" y2="118" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#1e1b18"/>
+              <stop offset="1" stop-color="#0e0d0b"/>
+            </linearGradient>
+            <linearGradient id="h-flame" x1="40" y1="20" x2="88" y2="108" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#ffd56b"/>
+              <stop offset="0.45" stop-color="#ff8c2b"/>
+              <stop offset="1" stop-color="#d9381e"/>
+            </linearGradient>
+            <linearGradient id="h-gold" x1="30" y1="30" x2="98" y2="98" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#fff4d0"/>
+              <stop offset="0.5" stop-color="#e5b842"/>
+              <stop offset="1" stop-color="#9a671a"/>
+            </linearGradient>
+          </defs>
+          <rect x="5" y="5" width="118" height="118" rx="28" fill="url(#h-bg)" stroke="#524332" stroke-width="2.5"/>
+          <path d="M64 16 L98 30 V58 C98 84 82 102 64 112 C46 102 30 84 30 58 V30 Z" fill="#25201a" stroke="url(#h-gold)" stroke-width="2.5"/>
+          <path d="M64 26 C72 38 82 48 82 62 C82 78 70 88 64 88 C58 88 46 78 46 62 C46 50 54 40 64 26 Z" fill="url(#h-flame)" opacity="0.9"/>
+          <circle cx="64" cy="90" r="2.5" fill="#ffd56b"/>
+        </svg>
+        <div class="brand-info">
+          <h1>SF Cheat Menu Configurator</h1>
+          <p>Interactive <code>extended.mod.json</code> Creator & Visual Preset Editor for Enshrouded</p>
+        </div>
+      </div>
+
+      <div class="header-links">
+        <a href="https://github.com/adromir/enshrouded-cheatmenu" target="_blank" rel="noopener noreferrer" class="btn-link">
+          <span>GitHub</span>
+          <span>↗</span>
+        </a>
+        <a href="https://github.com/bonsaibauer/shroudforge" target="_blank" rel="noopener noreferrer" class="btn-link">
+          <span>ShroudForge</span>
+          <span>↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Preset Bar -->
+  <section class="preset-bar">
+    <div class="preset-container">
+      <span class="preset-label">Quick Presets:</span>
+      <div id="presets-list" style="display: flex; gap: 0.5rem; align-items: center;"></div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main>
+    <!-- Left Column: Settings and Controls -->
+    <div class="controls-column">
+      <div class="toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search settings (e.g., altar, stack, speed, godmode)...">
+        </div>
+
+        <div class="toolbar-actions">
+          <label class="btn btn-secondary" style="cursor: pointer;">
+            <span>📁</span> Import File
+            <input type="file" id="import-file" accept=".json" style="display: none;">
+          </label>
+          <button id="expand-all-btn" class="btn btn-secondary">
+            <span>⊟</span> Collapse All
+          </button>
+          <button id="reset-btn" class="btn btn-danger" title="Reset all options to vanilla defaults">
+            <span>↺</span> Reset Defaults
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories Container -->
+      <div id="categories-container" style="display: flex; flex-direction: column; gap: 1.25rem;"></div>
+    </div>
+
+    <!-- Right Column: Live JSON Code Inspector -->
+    <div class="preview-column">
+      <div class="preview-card">
+        <div class="preview-header">
+          <div class="preview-title">
+            <span>📄</span>
+            <span>extended.mod.json</span>
+            <span class="status-badge">● Valid JSON</span>
+          </div>
+
+          <div class="preview-actions">
+            <button id="copy-btn" class="btn btn-primary" title="Copy to clipboard">
+              <span>📋</span> Copy
+            </button>
+            <button id="download-btn" class="btn btn-primary" title="Download extended.mod.json">
+              <span>💾</span> Download
+            </button>
+          </div>
+        </div>
+
+        <div class="code-container">
+          <pre><code id="json-output">Loading configuration...</code></pre>
+        </div>
+
+        <div class="preview-footer">
+          <div class="summary-stats">
+            Modified: <strong id="modified-count">0</strong> settings
+          </div>
+          <div class="summary-stats">
+            Targets: <strong>Client & Server</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Footer -->
+  <footer>
+    <p>
+      <strong>SF Cheat Menu & Dedicated Server Tweaks for Enshrouded</strong> | 
+      Author: <a href="https://github.com/adromir" target="_blank" rel="noopener noreferrer">Adromir</a> | 
+      Licensed under <a href="https://github.com/adromir/enshrouded-cheatmenu/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="schema-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
