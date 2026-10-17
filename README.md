@@ -163,7 +163,50 @@ This mod is built on a clean **Hybrid Client-Server** model designed for seamles
 
 ## 💻 Installation
 
-### 1. Client / Singleplayer / Co-op Host
+### 🚀 One-Click Quick Install (Recommended)
+
+You can install both **ShroudForge** and **SF Cheat Menu** in seconds using an automated one-liner in your terminal. The installer automatically discovers your Enshrouded game or dedicated server folder across all Steam drives, installs ShroudForge if missing, downloads the latest mod release, and preserves any existing custom configurations.
+
+#### Windows (PowerShell)
+Open PowerShell and run:
+```powershell
+irm https://raw.githubusercontent.com/adromir/enshrouded-cheatmenu/main/install.ps1 | iex
+```
+> [!TIP]
+> **Custom Path or Dedicated Server:**
+> You can pass an explicit target path or point to a dedicated server directory:
+> ```powershell
+> & { irm https://raw.githubusercontent.com/adromir/enshrouded-cheatmenu/main/install.ps1 | iex } -TargetDir "D:\SteamLibrary\steamapps\common\Enshrouded"
+> ```
+
+#### Linux / SteamOS / Steam Deck / Dedicated Server (Bash)
+Open a terminal and run:
+```bash
+curl -fsSL https://raw.githubusercontent.com/adromir/enshrouded-cheatmenu/main/install.sh | bash
+```
+> [!TIP]
+> **Custom Path:**
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/adromir/enshrouded-cheatmenu/main/install.sh | bash -s -- /path/to/Enshrouded
+> ```
+
+> [!IMPORTANT]
+> **Steam Deck & Linux Proton Setup:**
+> Because Proton and Wine disable custom native DLLs by default, you must enable the DLL override:
+> - **In Steam (Steam Deck / Desktop Linux):** Right-click **Enshrouded** → **Properties** → **General** → **Launch Options**:
+>   ```
+>   WINEDLLOVERRIDES="winmm=n,b" %command%
+>   ```
+> - **Headless Dedicated Server (Wine / Docker):**
+>   ```bash
+>   export WINEDLLOVERRIDES="winmm=n,b"
+>   ```
+
+---
+
+### 📦 Manual Installation
+
+#### 1. Client / Singleplayer / Co-op Host
 1. Install **ShroudForge** into your main Enshrouded directory (next to `enshrouded.exe`).
 2. Copy the entire `sf-cheatmenu` directory into your `mods` folder:
    ```
@@ -173,7 +216,7 @@ This mod is built on a clean **Hybrid Client-Server** model designed for seamles
 4. Press **F9** in-game to open the ShroudForge Mod Manager.
 5. Expand **SF Cheat Menu & Server Tweaks** to adjust sliders and toggle features on the fly.
 
-### 2. Windows Dedicated Server
+#### 2. Windows Dedicated Server
 1. Install ShroudForge into your dedicated server directory (next to `enshrouded_server.exe`).
 2. Copy `sf-cheatmenu` into the server's `mods` folder:
    ```
@@ -186,7 +229,7 @@ This mod is built on a clean **Hybrid Client-Server** model designed for seamles
 4. Start `enshrouded_server.exe` normally.
 5. Server diagnostic logs are located at `shroudforge/logs/shroudforge-server.log`.
 
-### 3. Linux / Docker Dedicated Server (Proton)
+#### 3. Linux / Docker Dedicated Server (Proton)
 1. Mount the ShroudForge files and `mods/sf-cheatmenu/` into your server container.
 2. Ensure `WINEDLLOVERRIDES="winmm=n,b"` is set in your container's environment variables.
 3. Restart the container.
