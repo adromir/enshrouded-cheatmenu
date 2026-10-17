@@ -2,6 +2,7 @@
 
 [![Game: Enshrouded](https://img.shields.io/badge/Game-Enshrouded-d97706.svg)](https://store.steampowered.com/app/1203630/Enshrouded/)
 [![Mod Loader: ShroudForge](https://img.shields.io/badge/Mod%20Loader-ShroudForge-854d0e.svg)](https://github.com/bonsaibauer/shroudforge)
+[![Latest Release](https://img.shields.io/github/v/release/adromir/enshrouded-cheatmenu?color=blue)](https://github.com/adromir/enshrouded-cheatmenu/releases/latest)
 [![Targets: Client & Server](https://img.shields.io/badge/Targets-Client%20%26%20Dedicated%20Server-22c55e.svg)](#installation)
 [![Web Configurator: Live](https://img.shields.io/badge/Web%20Configurator-Live%20Editor-ff7a18.svg)](https://adromir.github.io/enshrouded-cheatmenu/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
