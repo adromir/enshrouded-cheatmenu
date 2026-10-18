@@ -352,6 +352,14 @@ local function update(delta_seconds)
             end
         end
 
+        -- Player Stamina Factor (World / Host)
+        if enabled("infiniteStamina") then
+            local target = runtime.overrides.service(game_settings, "playerStaminaFactor")
+            if target then
+                overrides:apply(target.key, "infiniteStamina_world", target, function() return 0.0 end)
+            end
+        end
+
         -- Free Crafting & 0 Perk Cost Factor
         if enabled("freeCrafting") or enabled("infiniteSkillPoints") then
             local target = runtime.overrides.service(game_settings, "perkCostFactor")
@@ -532,8 +540,13 @@ local function update(delta_seconds)
                     overrides:apply(target.key, "infiniteHealth", target, function(snapshot)
                         local max = snapshot.values["Health_Max"]
                         if finite(max) and max > 0 then return max end
-                        return nil, "Invalid Health_Max"
+                        return 99999.0
                     end)
+                else
+                    local h_target = runtime.overrides.attribute(player_entity, "Health")
+                    if h_target then
+                        overrides:apply(h_target.key, "infiniteHealth", h_target, function() return 99999.0 end)
+                    end
                 end
             end
 
