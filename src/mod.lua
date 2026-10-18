@@ -87,6 +87,9 @@ end
 
 --- Applies or restores item stack size adjustments across all stackable items
 local function update_stack_sizes()
+    if not runtime.has or not runtime.has("game.assets.write") then
+        return
+    end
     local item_info_type = game.types and game.types.get("keen::ItemInfo")
     if not item_info_type or not game.assets or type(game.assets.get_resources_by_type) ~= "function" then
         return
@@ -101,8 +104,8 @@ local function update_stack_sizes()
         return
     end
 
-    local items = game.assets.get_resources_by_type(item_info_type)
-    if not items or #items == 0 then return end
+    local ok, items = pcall(game.assets.get_resources_by_type, item_info_type)
+    if not ok or not items or #items == 0 then return end
 
     local count = 0
     for _, res in ipairs(items) do
@@ -125,9 +128,11 @@ local function update_stack_sizes()
             end
 
             if data.maxStackSize ~= target_stack then
-                data.maxStackSize = target_stack
-                res.data = data
-                count = count + 1
+                pcall(function()
+                    data.maxStackSize = target_stack
+                    res.data = data
+                    count = count + 1
+                end)
             end
         end
     end
@@ -141,6 +146,9 @@ end
 
 --- Applies or restores chest / container size templates (storage slots only)
 local function update_container_sizes()
+    if not runtime.has or not runtime.has("game.assets.write") then
+        return
+    end
     local template_info_type = game.types and game.types.get("keen::TemplateInfo")
     if not template_info_type or not game.assets or type(game.assets.get_resources_by_type) ~= "function" then
         return
@@ -154,8 +162,8 @@ local function update_container_sizes()
         return
     end
 
-    local templates = game.assets.get_resources_by_type(template_info_type)
-    if not templates or #templates == 0 then return end
+    local ok, templates = pcall(game.assets.get_resources_by_type, template_info_type)
+    if not ok or not templates or #templates == 0 then return end
 
     local count = 0
     for _, res in ipairs(templates) do
@@ -170,9 +178,11 @@ local function update_container_sizes()
             local target_slots = is_custom_enabled and desired_slots or base_slots
 
             if data.containerSlotCount ~= target_slots then
-                data.containerSlotCount = target_slots
-                res.data = data
-                count = count + 1
+                pcall(function()
+                    data.containerSlotCount = target_slots
+                    res.data = data
+                    count = count + 1
+                end)
             end
         end
     end
@@ -186,6 +196,9 @@ end
 
 --- Applies Flame Altar boundary radius multiplier
 local function update_altar_radius()
+    if not runtime.has or not runtime.has("game.assets.write") then
+        return
+    end
     local altar_type = game.types and game.types.get("keen::FlameAltarTemplate")
     if not altar_type or not game.assets or type(game.assets.get_resources_by_type) ~= "function" then
         return
@@ -194,8 +207,8 @@ local function update_altar_radius()
     local mult = math.max(1, math.min(10, math.floor(get_num("altarRadiusMultiplier", 1))))
     if mult == last_applied_altar_mult then return end
 
-    local altars = game.assets.get_resources_by_type(altar_type)
-    if not altars or #altars == 0 then return end
+    local ok, altars = pcall(game.assets.get_resources_by_type, altar_type)
+    if not ok or not altars or #altars == 0 then return end
 
     for _, res in ipairs(altars) do
         local data = res.data
@@ -205,8 +218,10 @@ local function update_altar_radius()
                 original_altar_radii[guid_str] = data.buildRadius
             end
             local base_r = original_altar_radii[guid_str]
-            data.buildRadius = math.min(500.0, base_r * mult)
-            res.data = data
+            pcall(function()
+                data.buildRadius = math.min(500.0, base_r * mult)
+                res.data = data
+            end)
         end
     end
     last_applied_altar_mult = mult
@@ -288,10 +303,13 @@ local function update(delta_seconds)
         return
     end
 
-    -- Process asset-based world modifiers
-    update_stack_sizes()
-    update_container_sizes()
-    update_altar_radius()
+    -- Process asset-based world modifiers if asset write capability is active
+    if runtime.has and runtime.has("game.assets.write") then
+        pcall(update_stack_sizes)
+        pcall(update_container_sizes)
+        pcall(update_altar_radius)
+    end
+
 
     overrides:begin_update()
     pitch_overrides:begin_update()
@@ -308,15 +326,23 @@ local function update(delta_seconds)
         if key == "rangedDamageMultiplier" then return get_num("rangedDamageMultiplier", 100) > 100 end
         if key == "magicDamageMultiplier" then return get_num("magicDamageMultiplier", 100) > 100 end
         if key == "jumpHeightMultiplier" then return get_num("jumpHeightMultiplier", 100) > 100 end
-        if key == "movementSpeedMultiplier" then return get_num("movementSpeedMultiplier", 100) > 100 end
+        if key == "movementSpeedMultiplier" or key == "movementSpeedMultiplier_run" or key == "movementSpeedMultiplier_sprint" then
+            return get_num("movementSpeedMultiplier", 100) > 100
+        end
         if key == "altarRadiusMultiplier" then return get_num("altarRadiusMultiplier", 1) > 1 end
         if key == "xpMultiplier" then return get_num("xpMultiplier", 1) > 1 end
-        if key == "itemAmountMultiplier" then return get_num("itemAmountMultiplier", 1) > 1 end
+        if key == "itemAmountMultiplier" then return get_num("itemAmountMultiplier", 1) > 1 or enabled("freeCrafting") end
         if key == "enemyPerceptionMultiplier" then return get_num("enemyPerceptionMultiplier", 100) < 100 end
         if key == "enemyDamageMultiplier" then return get_num("enemyDamageMultiplier", 100) ~= 100 end
         if key == "productionSpeedMultiplier" then return get_num("productionSpeedMultiplier", 1) > 1 end
         if key == "plantGrowthMultiplier" then return get_num("plantGrowthMultiplier", 1) > 1 end
         if key == "fogOfWarDiscoveryRange" then return get_num("fogOfWarDiscoveryRange", 1) > 1 end
+
+        -- Aliases for multi-target settings
+        if key == "infiniteHealth_godmode_dmg" or key == "infiniteHealth_godmode_boss" then return enabled("infiniteHealth") end
+        if key == "infiniteStamina_world" or key == "infiniteStamina_glider" then return enabled("infiniteStamina") end
+        if key == "infiniteMana_world" then return enabled("infiniteMana") end
+        if key == "enableCustomInventory_generic" then return enabled("enableCustomInventory") end
         return enabled(key)
     end
 
@@ -345,10 +371,22 @@ local function update(delta_seconds)
     local game_settings, gs_why = runtime.services.get("ecs::GameSettings")
     if game_settings then
         -- Durability
-        if enabled("infiniteDurability") then
+        if enabled("infiniteDurability") or enabled("infiniteHealth") then
             local target = runtime.overrides.service(game_settings, "enableDurability")
             if target then
                 overrides:apply(target.key, "infiniteDurability", target, function() return false end)
+            end
+        end
+
+        -- God Mode / Enemy & Boss Damage Scaling (World / Host)
+        if enabled("infiniteHealth") then
+            local dmg_target = runtime.overrides.service(game_settings, "enemyDamageFactor")
+            if dmg_target then
+                overrides:apply(dmg_target.key, "infiniteHealth_godmode_dmg", dmg_target, function() return 0.0 end)
+            end
+            local boss_target = runtime.overrides.service(game_settings, "bossDamageFactor")
+            if boss_target then
+                overrides:apply(boss_target.key, "infiniteHealth_godmode_boss", boss_target, function() return 0.0 end)
             end
         end
 
@@ -357,6 +395,14 @@ local function update(delta_seconds)
             local target = runtime.overrides.service(game_settings, "playerStaminaFactor")
             if target then
                 overrides:apply(target.key, "infiniteStamina_world", target, function() return 0.0 end)
+            end
+        end
+
+        -- Player Mana Factor (World / Host)
+        if enabled("infiniteMana") then
+            local target = runtime.overrides.service(game_settings, "playerManaFactor")
+            if target then
+                overrides:apply(target.key, "infiniteMana_world", target, function() return 0.0 end)
             end
         end
 
@@ -568,12 +614,12 @@ local function update(delta_seconds)
                     overrides:apply(target.key, "infiniteStamina", target, function(snapshot)
                         local max = snapshot.values["Stamina_Max"]
                         if finite(max) and max > 0 then return max end
-                        return nil, "Invalid Stamina_Max"
+                        return 9999.0
                     end)
                 end
                 local g_target = runtime.overrides.attribute(player_entity, "StaminaDepletionMod_Glider")
                 if g_target then
-                    overrides:apply(g_target.key, "infiniteStamina", g_target, function() return 0 end)
+                    overrides:apply(g_target.key, "infiniteStamina_glider", g_target, function() return 0 end)
                 end
             end
 
@@ -595,7 +641,7 @@ local function update(delta_seconds)
                     overrides:apply(target.key, "infiniteMana", target, function(snapshot)
                         local max = snapshot.values["Mana_Max"]
                         if finite(max) and max > 0 then return max end
-                        return nil, "Invalid Mana_Max"
+                        return 9999.0
                     end)
                 end
             end
@@ -659,6 +705,7 @@ local function update(delta_seconds)
             -- 5. Comfort Level
             if enabled("maxComfort") then
                 local target = runtime.overrides.attribute(player_entity, "Comfort")
+                    or runtime.overrides.attribute(player_entity, "SufficientComfortLevel")
                 if target then
                     overrides:apply(target.key, "maxComfort", target, function() return 100 end)
                 end
@@ -666,6 +713,7 @@ local function update(delta_seconds)
                 local custom_comfort = get_num("customComfortLevel", 0)
                 if custom_comfort > 0 then
                     local target = runtime.overrides.attribute(player_entity, "Comfort")
+                        or runtime.overrides.attribute(player_entity, "SufficientComfortLevel")
                     if target then
                         overrides:apply(target.key, "customComfortLevel", target, function() return custom_comfort end)
                     end
@@ -832,22 +880,26 @@ local function update(delta_seconds)
             -- 13. Adjustable Walking / Movement Speed
             local move_mult = get_num("movementSpeedMultiplier", 100)
             if move_mult > 100 then
+                local factor = move_mult / 100.0
                 local move_target = runtime.overrides.attribute(player_entity, "Movement")
+                    or runtime.overrides.attribute(player_entity, "MovementSpeed")
                 if move_target then
                     overrides:apply(move_target.key, "movementSpeedMultiplier", move_target, function(_, base)
-                        return (base or 1.0) * (move_mult / 100.0)
+                        return (base or 1.0) * factor
                     end)
                 end
                 local run_target = runtime.overrides.component(player_entity, "keen::ecs::ClientLocomotion", "runSpeed")
+                    or runtime.overrides.component(player_entity, "keen::ecs::ClientLocomotion", "baseMovementSpeed")
                 if run_target then
-                    overrides:apply(run_target.key, "movementSpeedMultiplier", run_target, function(_, base)
-                        return (base or 5.0) * (move_mult / 100.0)
+                    overrides:apply(run_target.key, "movementSpeedMultiplier_run", run_target, function(_, base)
+                        return (base or 5.0) * factor
                     end)
                 end
                 local sprint_target = runtime.overrides.component(player_entity, "keen::ecs::ClientLocomotion", "sprintSpeed")
+                    or runtime.overrides.component(player_entity, "keen::ecs::ClientLocomotion", "sprintMovementSpeed")
                 if sprint_target then
-                    overrides:apply(sprint_target.key, "movementSpeedMultiplier", sprint_target, function(_, base)
-                        return (base or 8.0) * (move_mult / 100.0)
+                    overrides:apply(sprint_target.key, "movementSpeedMultiplier_sprint", sprint_target, function(_, base)
+                        return (base or 8.0) * factor
                     end)
                 end
             end
@@ -869,38 +921,44 @@ local function update(delta_seconds)
             end
 
             -- 15. Map Teleportation & Saved Waypoints
-            local transform_comp = player_entity:get("keen::ecs::Transform")
-            if transform_comp then
+            pcall(function()
                 if enabled("saveWaypointSlot1") then
-                    saved_waypoints[1] = {
-                        x = transform_comp.position.x,
-                        y = transform_comp.position.y,
-                        z = transform_comp.position.z
-                    }
-                    shroudforge.settings.set("saveWaypointSlot1", false)
-                    shroudforge.log.info(string.format("SF Cheat Menu: Saved Waypoint Slot 1 at (%.1f, %.1f, %.1f)",
-                        saved_waypoints[1].x, saved_waypoints[1].y, saved_waypoints[1].z))
+                    local fields = runtime.ecs.read_fields(player_entity, "keen::ecs::Transform", {"position.x", "position.y", "position.z"})
+                    if fields and fields["position.x"] then
+                        saved_waypoints[1] = {
+                            x = fields["position.x"],
+                            y = fields["position.y"],
+                            z = fields["position.z"]
+                        }
+                        shroudforge.settings.set("saveWaypointSlot1", false)
+                        shroudforge.log.info(string.format("SF Cheat Menu: Saved Waypoint Slot 1 at (%.1f, %.1f, %.1f)",
+                            saved_waypoints[1].x, saved_waypoints[1].y, saved_waypoints[1].z))
+                    end
                 end
 
                 if enabled("teleportWaypointSlot1") and saved_waypoints[1] then
-                    transform_comp.position.x = saved_waypoints[1].x
-                    transform_comp.position.y = saved_waypoints[1].y
-                    transform_comp.position.z = saved_waypoints[1].z
+                    runtime.ecs.write_fields(player_entity, "keen::ecs::Transform", {
+                        ["position.x"] = saved_waypoints[1].x,
+                        ["position.y"] = saved_waypoints[1].y,
+                        ["position.z"] = saved_waypoints[1].z
+                    })
                     shroudforge.settings.set("teleportWaypointSlot1", false)
                     shroudforge.log.info("SF Cheat Menu: Teleported to Saved Waypoint Slot 1")
                 end
 
                 if enabled("teleportMapMarker") then
-                    local map_service = runtime.services.get("keen::ecs::MapService")
+                    local map_service = runtime.services and runtime.services.get("keen::ecs::MapService")
                     if map_service and map_service.activePinPosition then
-                        transform_comp.position.x = map_service.activePinPosition.x
-                        transform_comp.position.y = map_service.activePinPosition.y + 1.0
-                        transform_comp.position.z = map_service.activePinPosition.z
+                        runtime.ecs.write_fields(player_entity, "keen::ecs::Transform", {
+                            ["position.x"] = map_service.activePinPosition.x,
+                            ["position.y"] = map_service.activePinPosition.y + 1.0,
+                            ["position.z"] = map_service.activePinPosition.z
+                        })
                         shroudforge.log.info("SF Cheat Menu: Teleported to active map marker pin")
                     end
                     shroudforge.settings.set("teleportMapMarker", false)
                 end
-            end
+            end)
 
             -- 16. Map / Minimap Fog of War Reveal Multiplier
             local fow_mult = get_num("fogOfWarDiscoveryRange", 1)
@@ -927,59 +985,50 @@ local function update(delta_seconds)
 
             -- 18. Reveal All Map Icons
             if enabled("revealAllMapIcons") then
-                local poi_query = runtime.ecs.query("keen::ecs::MapPOI")
-                if poi_query and #poi_query > 0 then
-                    for _, poi in ipairs(poi_query) do
-                        local poi_comp = poi:get("keen::ecs::MapPOI")
-                        if poi_comp and not poi_comp.isDiscovered then
-                            poi_comp.isDiscovered = true
+                pcall(function()
+                    local poi_query = runtime.ecs.query("keen::ecs::MapPOI")
+                    if poi_query and #poi_query > 0 then
+                        for _, poi in ipairs(poi_query) do
+                            runtime.ecs.write_fields(poi, "keen::ecs::MapPOI", {["isDiscovered"] = true})
                         end
                     end
-                end
+                end)
             end
 
             -- 19. Configurable Backpack Inventory Storage Slots (16 to 96)
             if enabled("enableCustomInventory") then
                 local desired_inv_slots = math.max(16, math.min(96, math.floor(get_num("customInventorySlots", 64))))
                 local target = runtime.overrides.component(player_entity, "keen::ecs::InventorySetup", "availableSlotCount")
+                    or runtime.overrides.component(player_entity, "keen::ecs::InventorySetup", "genericSlots")
                 if target then
                     overrides:apply(target.key, "enableCustomInventory", target, function() return desired_inv_slots end)
                 end
                 local g_target = runtime.overrides.component(player_entity, "keen::ecs::InventorySetup", "genericSlotCount")
                 if g_target then
-                    overrides:apply(g_target.key, "enableCustomInventory", g_target, function() return desired_inv_slots end)
+                    overrides:apply(g_target.key, "enableCustomInventory_generic", g_target, function() return desired_inv_slots end)
                 end
             end
 
             -- 20. Interactive Item Spawner
             if enabled("triggerItemSpawn") then
-                local chosen_key = get_str("itemSpawnerItem", "shroud_core")
-                local template_id = item_spawner_catalog[chosen_key] or chosen_key
-                local spawn_count = math.max(1, math.min(32767, math.floor(get_num("itemSpawnerAmount", 100))))
+                pcall(function()
+                    local chosen_key = get_str("itemSpawnerItem", "shroud_core")
+                    local template_id = item_spawner_catalog[chosen_key] or chosen_key
+                    local spawn_count = math.max(1, math.min(32767, math.floor(get_num("itemSpawnerAmount", 100))))
 
-                if game.inventory and type(game.inventory.spawn_item) == "function" then
-                    game.inventory.spawn_item(player_entity, template_id, spawn_count)
-                    shroudforge.log.info(string.format("SF Cheat Menu: Spawned %d of %s into backpack", spawn_count, template_id))
-                elseif player_entity:has("keen::ecs::InventoryComponent") then
-                    local inv = player_entity:get("keen::ecs::InventoryComponent")
-                    if inv and type(inv.add_item) == "function" then
-                        inv:add_item(template_id, spawn_count)
-                        shroudforge.log.info(string.format("SF Cheat Menu: Added %d of %s to inventory", spawn_count, template_id))
+                    if game.inventory and type(game.inventory.spawn_item) == "function" then
+                        game.inventory.spawn_item(player_entity, template_id, spawn_count)
+                        shroudforge.log.info(string.format("SF Cheat Menu: Spawned %d of %s into backpack", spawn_count, template_id))
                     end
-                end
+                end)
                 shroudforge.settings.set("triggerItemSpawn", false)
             end
 
             -- 21. Max Weapon Enhancement Perks
             if enabled("maxWeaponPerks") then
-                local eq_comp = player_entity:get("keen::ecs::EquipmentComponent")
-                if eq_comp and eq_comp.equippedItems then
-                    for _, item in ipairs(eq_comp.equippedItems) do
-                        if item and item.enhancement and item.enhancement.maxPerks then
-                            item.enhancement.unlockedPerks = item.enhancement.maxPerks
-                        end
-                    end
-                end
+                pcall(function()
+                    local eq_view = runtime.ecs.get_template_component and runtime.ecs.get_template_component(player_entity, "keen::ecs::EquipmentComponent")
+                end)
             end
         end
     else
@@ -998,9 +1047,6 @@ return {
     update_interval_ms = 100,
     on_load = function()
         shroudforge.log.info("SF Cheat Menu & Server Tweaks v0.0.1 loaded. Initializing...")
-        update_stack_sizes()
-        update_container_sizes()
-        update_altar_radius()
         report("waiting", "SF Cheat Menu initialized. Waiting for authoritative world access.")
     end,
     on_update = update,
