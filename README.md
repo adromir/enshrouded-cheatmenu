@@ -326,7 +326,7 @@ Here is a balanced, cooperative Quality-of-Life preset for dedicated servers tha
 2. Start or restart `enshrouded_server.exe`.
 3. Check the server log file at `shroudforge/logs/shroudforge-server.log` to confirm initialization:
    ```
-   [info] SF Cheat Menu & Server Tweaks v2.0.0 loaded. Initializing...
+   [info] SF Cheat Menu & Server Tweaks v0.0.1 loaded. Initializing...
    [info] SF Cheat Menu: Updated stack size for 312 items (Mode: custom, Signature: custom:5000)
    [info] SF Cheat Menu: Updated container capacity for 14 chest templates (Slots: 64)
    ```

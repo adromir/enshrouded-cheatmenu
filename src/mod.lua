@@ -2,7 +2,7 @@
     SF Cheat Menu & Dedicated Server Tweaks for Enshrouded
     Author: Adromir
     License: MIT
-    Version: 2.0.0
+    Version: 0.0.1
     
     Comprehensive cheat menu and server utility built on ShroudForge's typed
     runtime API, ECS attribute bindings, service overrides, and asset patching.
@@ -978,13 +978,13 @@ local function update(delta_seconds)
     local state = (overrides.fault or pitch_overrides.fault) and "write-failed" or
         (overrides.waiting_count + pitch_overrides.waiting_count > 0 and "waiting" or
         (overrides.writes + pitch_overrides.writes > 0 and "write-confirmed" or "no-change"))
-    report(state, overrides:summary("SF Cheat Menu v2.0.0 active"))
+    report(state, overrides:summary("SF Cheat Menu v0.0.1 active"))
 end
 
 return {
     update_interval_ms = 100,
     on_load = function()
-        shroudforge.log.info("SF Cheat Menu & Server Tweaks v2.0.0 loaded. Initializing...")
+        shroudforge.log.info("SF Cheat Menu & Server Tweaks v0.0.1 loaded. Initializing...")
         update_stack_sizes()
         update_container_sizes()
         update_altar_radius()

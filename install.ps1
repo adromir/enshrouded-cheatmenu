@@ -60,7 +60,7 @@ function Write-Banner {
     Write-Host @"
 ================================================================
      Enshrouded Cheat Menu & ShroudForge One-Click Installer    
-             Author: Adromir  |  Version: 2.0.0                
+             Author: Adromir  |  Version: 0.0.1                
 ================================================================
 "@ -ForegroundColor Magenta
 }
@@ -344,8 +344,8 @@ Write-Step "Fetching latest SF Cheat Menu & Server Tweaks release..."
 $modInfo = Get-ReleaseAssetUrl `
     -Repo "adromir/enshrouded-cheatmenu" `
     -Pattern "*sf-cheatmenu*.zip" `
-    -StaticFallbackUrl "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v2.0.0/sf-cheatmenu-v2.0.0.zip" `
-    -StaticFallbackVersion "v2.0.0"
+    -StaticFallbackUrl "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v0.0.1/sf-cheatmenu-v0.0.1.zip" `
+    -StaticFallbackVersion "v0.0.1"
 
 $modsDir = Join-Path $installDir "mods"
 if (-not (Test-Path $modsDir)) {

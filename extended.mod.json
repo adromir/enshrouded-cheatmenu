@@ -11,7 +11,7 @@
     "web-configurator": "https://adromir.github.io/enshrouded-cheatmenu/"
   },
   "changelog": [
-    "v2.0.0: Major Expansion. Added 15+ new features across 5 domains: Base Building (10x Altar Radius, Unlimited Altars, Free Building Blocks, No Stability limits), Item Spawner & Blacksmith Upgrader (in-game item creation catalog, 0-rune upgrades, max perks), Combat Mechanics (Infinite Arrows, Instant Bow Draw, Rapid Wand Spells, Unlimited Grappling Hook, One-Hit Kill), Exploration & Vision (Clear Shroud Fog Vision, Teleport to Map Marker, Saved Waypoint Teleporter, Reveal All Map Icons), and Progression (Free Skill Respec Anywhere, Unlock All Recipes, Free Flame Upgrades, Red Shroud Immunity).",
+    "v0.0.1: Major Expansion. Added 15+ features across 5 domains: Base Building (10x Altar Radius, Unlimited Altars, Free Blocks, No Stability), Item Spawner & Upgrader (item catalog, 0-rune upgrades, max perks), Combat (Infinite Arrows, Instant Bow Draw, Rapid Wands, One-Hit Kill), Exploration (Clear Shroud Fog, Waypoint Teleporter, Reveal Map Icons), and Progression (Free Skill Respec, Unlock All Recipes, Red Shroud Immunity).",
     "v1.3.0: Added Building Fly Mode, Infinite Gliding, Jump Height, Walking Speed, Slope Mountain Walking, Dragged Item Quantity, and Fog of War Reveal Multiplier.",
     "v1.2.0: Implemented hybrid client-server architecture with server-authoritative world rules and client-controlled personal cheats.",
     "v1.1.0: Full user configurability with adjustable sliders and exact value limits.",

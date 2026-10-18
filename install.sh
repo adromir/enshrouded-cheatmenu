@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # Enshrouded Cheat Menu & ShroudForge One-Click Installer (Linux / SteamOS / Wine)
-# Author: Adromir (https://github.com/adromir) | Version: 2.0.0
+# Author: Adromir (https://github.com/adromir) | Version: 0.0.1
 # ==============================================================================
 
 set -euo pipefail
@@ -224,7 +224,7 @@ fi
 
 # Install sf-cheatmenu Mod
 print_step "Fetching latest SF Cheat Menu & Server Tweaks release..."
-read -r MOD_TAG MOD_URL <<< "$(fetch_release_asset "adromir/enshrouded-cheatmenu" "sf-cheatmenu" "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v2.0.0/sf-cheatmenu-v2.0.0.zip" "v2.0.0")"
+read -r MOD_TAG MOD_URL <<< "$(fetch_release_asset "adromir/enshrouded-cheatmenu" "sf-cheatmenu" "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v0.0.1/sf-cheatmenu-v0.0.1.zip" "v0.0.1")"
 
 MODS_DIR="$TARGET_DIR/mods"
 MOD_TARGET_DIR="$MODS_DIR/sf-cheatmenu"
