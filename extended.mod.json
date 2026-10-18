@@ -8,7 +8,7 @@
   ],
   "links": {
     "source-github": "https://github.com/adromir/enshrouded-cheatmenu",
-    "web-configurator": "https://adromir.github.io/enshrouded-cheatmenu/"
+    "website": "https://adromir.github.io/enshrouded-cheatmenu/"
   },
   "changelog": [
     "v0.0.1: Major Expansion. Added 15+ features across 5 domains: Base Building (10x Altar Radius, Unlimited Altars, Free Blocks, No Stability), Item Spawner & Upgrader (item catalog, 0-rune upgrades, max perks), Combat (Infinite Arrows, Instant Bow Draw, Rapid Wands, One-Hit Kill), Exploration (Clear Shroud Fog, Waypoint Teleporter, Reveal Map Icons), and Progression (Free Skill Respec, Unlock All Recipes, Red Shroud Immunity).",
