@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version (e.g. v2.0.0, leave blank to use mod.json version)'
+        description: 'Release version (e.g. v0.0.1, leave blank to use mod.json version)'
         required: false
         default: ''
 
@@ -16,8 +16,8 @@ permissions:
 
 jobs:
   build-and-release:
-    name: Build & Package Release Zip
-    runs-on: ubuntu-latest
+    name: Build Native DLL & Package Release Zip
+    runs-on: windows-latest
 
     steps:
       - name: Checkout Repository
@@ -25,57 +25,104 @@ jobs:
 
       - name: Determine Version
         id: get_version
+        shell: pwsh
         run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            VERSION="${GITHUB_REF#refs/tags/}"
-          else
-            VERSION="v$(jq -r .version mod.json)"
-          fi
-          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Building package for version: ${VERSION}"
+          if ("${{ github.event.inputs.version }}" -ne "") {
+            $VERSION = "${{ github.event.inputs.version }}"
+          } elseif ("${{ github.ref }}" -like "refs/tags/*") {
+            $VERSION = "${{ github.ref }}".Replace("refs/tags/", "")
+          } else {
+            $manifest = Get-Content sf-cheatmenu/mod.json -Raw | ConvertFrom-Json
+            $VERSION = "v$($manifest.version)"
+          }
+          echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
+          Write-Host "Building package for version: $VERSION"
 
-      - name: Assemble Mod Package
+      - name: Compile Native Sidecar & Proxy DLLs
+        shell: pwsh
         run: |
-          mkdir -p build/sf-cheatmenu/src
+          Write-Host "Compiling sf-native.dll..."
+          cd sf-cheatmenu/native
+          clang++ -shared -O2 -std=c++17 -Iinclude src/main.cpp src/pattern_scan.cpp src/patcher.cpp -o sf-native.dll
+          if (-not (Test-Path sf-native.dll)) {
+            Write-Error "Native DLL compilation failed!"
+            exit 1
+          }
+          Write-Host "Successfully compiled sf-native.dll ($(Get-Item sf-native.dll).Length bytes)"
           
-          # Copy essential mod files
-          cp mod.json build/sf-cheatmenu/
-          cp extended.mod.json build/sf-cheatmenu/
-          cp icon.svg build/sf-cheatmenu/
-          cp LICENSE build/sf-cheatmenu/
-          cp README.md build/sf-cheatmenu/
-          cp -r src/* build/sf-cheatmenu/src/
+          Write-Host "Compiling proxy powrprof.dll..."
+          clang++ -shared -O2 -D_CRT_SECURE_NO_WARNINGS proxy/powrprof.cpp "-Wl,-def:proxy/powrprof.def" -o proxy/powrprof.dll
+          if (-not (Test-Path proxy/powrprof.dll)) {
+            Write-Error "Proxy powrprof.dll compilation failed!"
+            exit 1
+          }
+          Write-Host "Successfully compiled proxy/powrprof.dll ($(Get-Item proxy/powrprof.dll).Length bytes)"
+          cd ../..
 
-          # Validate assembled structure
-          echo "Package contents:"
-          ls -laR build/sf-cheatmenu/
-
-      - name: Create Zip Archive
+      - name: Assemble Mod Packages
+        shell: pwsh
         run: |
-          VERSION="${{ steps.get_version.outputs.VERSION }}"
-          ZIP_NAME="sf-cheatmenu-${VERSION}.zip"
-          
-          # Create zip containing the sf-cheatmenu folder
-          cd build
-          zip -r "../${ZIP_NAME}" sf-cheatmenu
-          cd ..
-          
-          # Generate SHA256 checksum
-          sha256sum "${ZIP_NAME}" > "${ZIP_NAME}.sha256"
-          
-          echo "ZIP_NAME=${ZIP_NAME}" >> $GITHUB_ENV
-          echo "Checksum:"
-          cat "${ZIP_NAME}.sha256"
+          # 1. Assemble sf-cheatmenu (Runtime)
+          New-Item -ItemType Directory -Force -Path build/sf-cheatmenu/src | Out-Null
+          Copy-Item sf-cheatmenu/mod.json build/sf-cheatmenu/
+          Copy-Item sf-cheatmenu/extended.mod.json build/sf-cheatmenu/
+          Copy-Item sf-cheatmenu/icon.svg build/sf-cheatmenu/
+          Copy-Item LICENSE build/sf-cheatmenu/
+          Copy-Item README.md build/sf-cheatmenu/
+          Copy-Item sf-cheatmenu/src/* build/sf-cheatmenu/src/ -Recurse
+          Copy-Item sf-cheatmenu/native/native-plugin.ini build/sf-cheatmenu/
+          Copy-Item sf-cheatmenu/native/sf-native.dll build/sf-cheatmenu/
+          Copy-Item sf-cheatmenu/native/proxy/powrprof.dll build/sf-cheatmenu/
 
-      - name: Upload Build Artifact (Actions Tab)
+          # 2. Assemble sf-cheatmenu-assets (Static Patch)
+          New-Item -ItemType Directory -Force -Path build/sf-cheatmenu-assets/src | Out-Null
+          Copy-Item sf-cheatmenu-assets/mod.json build/sf-cheatmenu-assets/
+          Copy-Item sf-cheatmenu-assets/extended.mod.json build/sf-cheatmenu-assets/
+          Copy-Item sf-cheatmenu-assets/icon.svg build/sf-cheatmenu-assets/
+          Copy-Item LICENSE build/sf-cheatmenu-assets/
+          Copy-Item README.md build/sf-cheatmenu-assets/
+          Copy-Item sf-cheatmenu-assets/src/* build/sf-cheatmenu-assets/src/ -Recurse
+
+          # 3. Assemble Complete All-in-One Bundle (Drag-and-Drop for Game Root)
+          New-Item -ItemType Directory -Force -Path build/bundle/mods/sf-cheatmenu | Out-Null
+          New-Item -ItemType Directory -Force -Path build/bundle/mods/sf-cheatmenu-assets | Out-Null
+          Copy-Item sf-cheatmenu/native/proxy/powrprof.dll build/bundle/
+          Copy-Item build/sf-cheatmenu/* build/bundle/mods/sf-cheatmenu/ -Recurse
+          Remove-Item build/bundle/mods/sf-cheatmenu/powrprof.dll -Force -ErrorAction SilentlyContinue
+          Copy-Item build/sf-cheatmenu-assets/* build/bundle/mods/sf-cheatmenu-assets/ -Recurse
+
+          Write-Host "Assembled packages successfully!"
+
+
+      - name: Create Zip Archives & Checksums
+        shell: pwsh
+        run: |
+          $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+          
+          # Compress individual and bundle archives
+          $archives = @(
+            @{ Name = "sf-cheatmenu-$VERSION.zip"; Path = "build/sf-cheatmenu" },
+            @{ Name = "sf-cheatmenu-assets-$VERSION.zip"; Path = "build/sf-cheatmenu-assets" },
+            @{ Name = "sf-cheatmenu-bundle-$VERSION.zip"; Path = "build/bundle" }
+          )
+
+          foreach ($arch in $archives) {
+            $zipName = $arch.Name
+            $srcPath = $arch.Path
+            Write-Host "Creating $zipName from $srcPath..."
+            Compress-Archive -Path "$srcPath/*" -DestinationPath $zipName -Force
+            $hash = (Get-FileHash -Path $zipName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $zipName" | Out-File -FilePath "$zipName.sha256" -Encoding ascii
+            Write-Host "  SHA256: $hash"
+          }
+
+      - name: Upload Build Artifacts (Actions Tab)
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ZIP_NAME }}
+          name: sf-cheatmenu-packages
           path: |
-            ${{ env.ZIP_NAME }}
-            ${{ env.ZIP_NAME }}.sha256
+            *.zip
+            *.sha256
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -87,7 +134,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${{ env.ZIP_NAME }}
-            ${{ env.ZIP_NAME }}.sha256
+            *.zip
+            *.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

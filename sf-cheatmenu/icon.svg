@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="10" y1="10" x2="118" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1e1b18"/>
+      <stop offset="1" stop-color="#0e0d0b"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="40" y1="20" x2="88" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffd56b"/>
+      <stop offset="0.45" stop-color="#ff8c2b"/>
+      <stop offset="1" stop-color="#d9381e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="30" y1="30" x2="98" y2="98" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff4d0"/>
+      <stop offset="0.5" stop-color="#e5b842"/>
+      <stop offset="1" stop-color="#9a671a"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Card -->
+  <rect x="5" y="5" width="118" height="118" rx="28" fill="url(#bg)" stroke="#524332" stroke-width="2.5"/>
+  <!-- Outer Shield Crest -->
+  <path d="M64 16 L98 30 V58 C98 84 82 102 64 112 C46 102 30 84 30 58 V30 Z" fill="#25201a" stroke="url(#gold)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Inner Flame Motif -->
+  <path d="M64 26 C72 38 82 48 82 62 C82 78 70 88 64 88 C58 88 46 78 46 62 C46 50 54 40 64 26 Z" fill="url(#flame)" opacity="0.9"/>
+  <path d="M64 42 C68 50 74 56 74 64 C74 74 68 80 64 80 C60 80 54 74 54 64 C54 58 58 52 64 42 Z" fill="#fff6d6" opacity="0.85"/>
+  <!-- Chest / Inventory Motif at Base -->
+  <rect x="42" y="80" width="44" height="20" rx="4" fill="#352b22" stroke="url(#gold)" stroke-width="2"/>
+  <line x1="42" y1="87" x2="86" y2="87" stroke="url(#gold)" stroke-width="1.5"/>
+  <circle cx="64" cy="90" r="2.5" fill="#ffd56b"/>
+  <!-- Sparkles / Magic Stars -->
+  <path d="M38 38 L40 43 L45 45 L40 47 L38 52 L36 47 L31 45 L36 43 Z" fill="#ffd56b"/>
+  <path d="M88 38 L90 42 L94 44 L90 46 L88 50 L86 46 L82 44 L86 42 Z" fill="#ffd56b"/>
+</svg>

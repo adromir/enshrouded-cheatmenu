@@ -2,15 +2,23 @@
 (function() {
   'use strict';
 
-  let baseData = JSON.parse(JSON.stringify(window.BASE_EXTENDED_MOD_JSON));
+  let currentModKey = 'sf-cheatmenu';
+  let modConfig = window.MOD_CONFIGS ? window.MOD_CONFIGS[currentModKey] : null;
+  let baseData = modConfig ? JSON.parse(JSON.stringify(modConfig.base)) : JSON.parse(JSON.stringify(window.BASE_EXTENDED_MOD_JSON));
+
   let currentSettings = {};
   let originalDefaults = {};
 
   // Initialize currentSettings from baseData
-  for (const [key, def] of Object.entries(baseData.settings)) {
-    currentSettings[key] = def.value;
-    originalDefaults[key] = def.value;
+  function initSettings() {
+    currentSettings = {};
+    originalDefaults = {};
+    for (const [key, def] of Object.entries(baseData.settings)) {
+      currentSettings[key] = def.value;
+      originalDefaults[key] = def.value;
+    }
   }
+  initSettings();
 
   // DOM Elements
   const container = document.getElementById('categories-container');
@@ -26,13 +34,55 @@
   const expandAllBtn = document.getElementById('expand-all-btn');
 
   let activePresetKey = null;
+  let expandedCategories = new Set();
+
+  // Switch Target Mod (sf-cheatmenu vs sf-cheatmenu-assets)
+  function switchMod(modKey) {
+    if (!window.MOD_CONFIGS || !window.MOD_CONFIGS[modKey]) return;
+    currentModKey = modKey;
+    modConfig = window.MOD_CONFIGS[modKey];
+    baseData = JSON.parse(JSON.stringify(modConfig.base));
+    initSettings();
+
+    activePresetKey = null;
+    expandedCategories.clear();
+
+    // Update active tab buttons
+    document.querySelectorAll('.mod-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.mod === modKey);
+    });
+
+    // Update preview title
+    const previewTitle = document.querySelector('.preview-title span:nth-child(2)');
+    if (previewTitle) {
+      previewTitle.textContent = `${modKey}/extended.mod.json`;
+    }
+
+    renderPresets();
+    renderCategories();
+    updateExpandAllButtonText();
+    updateUI();
+    showToast(`Switched to: ${modConfig.name}`);
+  }
+
+  // Setup Mod Tab Listeners
+  document.querySelectorAll('.mod-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.mod;
+      if (target && target !== currentModKey) {
+        switchMod(target);
+      }
+    });
+  });
 
   // Render Presets
   function renderPresets() {
-    if (!presetContainer || !window.PRESETS) return;
+    if (!presetContainer) return;
     presetContainer.innerHTML = '';
     
-    for (const [key, preset] of Object.entries(window.PRESETS)) {
+    const presets = modConfig && modConfig.presets ? modConfig.presets : (window.PRESETS || {});
+
+    for (const [key, preset] of Object.entries(presets)) {
       const chip = document.createElement('button');
       chip.className = `preset-chip ${activePresetKey === key ? 'active' : ''}`;
       chip.innerHTML = `${preset.name}`;
@@ -45,7 +95,8 @@
   // Apply a Preset
   function applyPreset(presetKey) {
     activePresetKey = presetKey;
-    const preset = window.PRESETS[presetKey];
+    const presets = modConfig && modConfig.presets ? modConfig.presets : (window.PRESETS || {});
+    const preset = presets[presetKey];
     if (!preset) return;
 
     // Reset to defaults first
@@ -75,14 +126,12 @@
     return { text: 'Personal', class: 'personal' };
   }
 
-  let expandedCategories = new Set(); // Empty by default -> all categories start collapsed
-
   // Render All Categories and Settings
   function renderCategories() {
     if (!container || !baseData.groups) return;
     container.innerHTML = '';
 
-    const query = (searchInput.value || '').trim().toLowerCase();
+    const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
     baseData.groups.forEach((group, groupIdx) => {
       // Filter settings by search query
@@ -150,92 +199,70 @@
         const top = document.createElement('div');
         top.className = 'setting-top';
 
-        const meta = document.createElement('div');
-        meta.className = 'setting-meta';
-        meta.innerHTML = `
-          <div class="setting-label">
-            ${def.label || key}
+        const info = document.createElement('div');
+        info.className = 'setting-info';
+        info.innerHTML = `
+          <div class="setting-title-row">
+            <span class="setting-label">${def.label || key}</span>
             <span class="setting-scope ${scope.class}">${scope.text}</span>
+            <span class="setting-key">${key}</span>
           </div>
-          <div class="setting-description">${def.description || ''}</div>
+          <div class="setting-desc">${def.description || ''}</div>
         `;
-        top.appendChild(meta);
+        top.appendChild(info);
 
-        // Control
+        // Control input
         const controlContainer = document.createElement('div');
+        controlContainer.className = 'setting-control';
 
         if (def.control === 'checkbox') {
           const switchLabel = document.createElement('label');
           switchLabel.className = 'switch';
           const input = document.createElement('input');
           input.type = 'checkbox';
-          input.checked = val === true;
-          input.addEventListener('change', () => {
-            currentSettings[key] = input.checked;
+          input.checked = !!val;
+          input.addEventListener('change', (e) => {
+            currentSettings[key] = e.target.checked;
+            activePresetKey = null;
+            renderPresets();
             updateUI();
           });
-          const sliderSpan = document.createElement('span');
-          sliderSpan.className = 'slider-round';
+
+          const slider = document.createElement('span');
+          slider.className = 'slider';
+
           switchLabel.appendChild(input);
-          switchLabel.appendChild(sliderSpan);
+          switchLabel.appendChild(slider);
           controlContainer.appendChild(switchLabel);
+
         } else if (def.control === 'slider') {
-          const groupSlider = document.createElement('div');
-          groupSlider.className = 'slider-control-group';
+          const sliderWrap = document.createElement('div');
+          sliderWrap.className = 'slider-wrap';
 
           const range = document.createElement('input');
           range.type = 'range';
-          range.className = 'range-slider';
-          range.min = def.min !== undefined ? def.min : 0;
-          range.max = def.max !== undefined ? def.max : 100;
-          range.step = def.step !== undefined ? def.step : 1;
+          range.className = 'range-input';
+          range.min = def.min;
+          range.max = def.max;
+          range.step = def.step || 1;
           range.value = val;
 
-          const num = document.createElement('input');
-          num.type = 'number';
-          num.className = 'number-input';
-          num.min = range.min;
-          num.max = range.max;
-          num.step = range.step;
-          num.value = val;
+          const numBadge = document.createElement('span');
+          numBadge.className = 'slider-value';
+          numBadge.textContent = val;
 
-          range.addEventListener('input', () => {
-            const numVal = parseFloat(range.value);
-            num.value = numVal;
-            currentSettings[key] = numVal;
+          range.addEventListener('input', (e) => {
+            const num = parseFloat(e.target.value);
+            currentSettings[key] = num;
+            numBadge.textContent = num;
+            activePresetKey = null;
+            renderPresets();
             updateUI();
           });
 
-          num.addEventListener('change', () => {
-            let numVal = parseFloat(num.value);
-            if (isNaN(numVal)) numVal = def.value;
-            numVal = Math.max(parseFloat(range.min), Math.min(parseFloat(range.max), numVal));
-            num.value = numVal;
-            range.value = numVal;
-            currentSettings[key] = numVal;
-            updateUI();
-          });
-
-          groupSlider.appendChild(range);
-          groupSlider.appendChild(num);
-          controlContainer.appendChild(groupSlider);
-        } else if (def.control === 'select') {
-          const select = document.createElement('select');
-          select.className = 'select-input';
-          if (def.options) {
-            for (const [optKey, optLabel] of Object.entries(def.options)) {
-              const opt = document.createElement('option');
-              opt.value = optKey;
-              opt.textContent = optLabel;
-              if (optKey === val) opt.selected = true;
-              select.appendChild(opt);
-            }
-          }
-          select.addEventListener('change', () => {
-            currentSettings[key] = select.value;
-            updateUI();
-          });
-          controlContainer.appendChild(select);
+          sliderWrap.appendChild(range);
+          sliderWrap.appendChild(numBadge);
+          controlContainer.appendChild(sliderWrap);
         }
 
         top.appendChild(controlContainer);
@@ -310,7 +337,7 @@
       modifiedCountEl.textContent = count;
     }
 
-    // Refresh card modified states without full redraw if search hasn't changed
+    // Refresh card modified states without full redraw
     document.querySelectorAll('.setting-card').forEach(card => {
       const key = card.dataset.key;
       if (key && currentSettings.hasOwnProperty(key)) {
@@ -343,16 +370,15 @@
     copyBtn.addEventListener('click', () => {
       const jsonStr = generateOutputJSON();
       navigator.clipboard.writeText(jsonStr).then(() => {
-        showToast('Configuration copied to clipboard!');
+        showToast(`Configuration for ${currentModKey} copied to clipboard!`);
       }).catch(() => {
-        // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = jsonStr;
         document.body.appendChild(textarea);
         textarea.select();
         document.execCommand('copy');
         textarea.remove();
-        showToast('Configuration copied to clipboard!');
+        showToast(`Configuration for ${currentModKey} copied to clipboard!`);
       });
     });
   }
@@ -370,7 +396,7 @@
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      showToast('Downloaded extended.mod.json!');
+      showToast(`Downloaded extended.mod.json for ${currentModKey}!`);
     });
   }
 
@@ -395,7 +421,7 @@
             renderCategories();
             renderPresets();
             updateUI();
-            showToast(`Successfully imported ${loadedCount} settings from file!`);
+            showToast(`Imported ${loadedCount} settings into ${currentModKey}!`);
           } else {
             alert('Invalid format: Could not find "settings" object in the JSON file.');
           }
@@ -435,10 +461,8 @@
     expandAllBtn.addEventListener('click', () => {
       const totalGroups = baseData.groups ? baseData.groups.length : 0;
       if (expandedCategories.size === totalGroups) {
-        // Collapse all
         expandedCategories.clear();
       } else {
-        // Expand all
         for (let i = 0; i < totalGroups; i++) {
           expandedCategories.add(i);
         }

@@ -222,66 +222,136 @@ else
     print_success "ShroudForge mod loader is already installed."
 fi
 
-# Install sf-cheatmenu Mod
-print_step "Fetching latest SF Cheat Menu & Server Tweaks release..."
-read -r MOD_TAG MOD_URL <<< "$(fetch_release_asset "adromir/enshrouded-cheatmenu" "sf-cheatmenu" "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v0.0.1/sf-cheatmenu-v0.0.1.zip" "v0.0.1")"
+# Install sf-cheatmenu and sf-cheatmenu-assets
+print_step "Fetching latest SF Cheat Menu package releases..."
 
 MODS_DIR="$TARGET_DIR/mods"
-MOD_TARGET_DIR="$MODS_DIR/sf-cheatmenu"
-EXISTING_CONFIG="$MOD_TARGET_DIR/extended.mod.json"
-TEMP_BACKUP=""
-
+RUNTIME_DIR="$MODS_DIR/sf-cheatmenu"
+ASSETS_DIR="$MODS_DIR/sf-cheatmenu-assets"
 mkdir -p "$MODS_DIR"
 
-if [ -f "$EXISTING_CONFIG" ]; then
-    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-    BACKUP_FILE="${MOD_TARGET_DIR}/extended.mod.json.bak-${TIMESTAMP}"
-    cp -f "$EXISTING_CONFIG" "$BACKUP_FILE"
-    print_warn "Existing configuration backed up to: extended.mod.json.bak-${TIMESTAMP}"
+EXISTING_RUNTIME_CONFIG="$RUNTIME_DIR/extended.mod.json"
+EXISTING_ASSETS_CONFIG="$ASSETS_DIR/extended.mod.json"
+TEMP_RUNTIME_BAK=""
+TEMP_ASSETS_BAK=""
 
-    TEMP_BACKUP=$(mktemp /tmp/sf_config_bak-XXXXXX.json)
-    cp -f "$EXISTING_CONFIG" "$TEMP_BACKUP"
+if [ -f "$EXISTING_RUNTIME_CONFIG" ]; then
+    TEMP_RUNTIME_BAK=$(mktemp /tmp/sf_runtime_bak-XXXXXX.json)
+    cp -f "$EXISTING_RUNTIME_CONFIG" "$TEMP_RUNTIME_BAK"
+    print_warn "Preserving existing sf-cheatmenu extended.mod.json configuration."
+fi
+if [ -f "$EXISTING_ASSETS_CONFIG" ]; then
+    TEMP_ASSETS_BAK=$(mktemp /tmp/sf_assets_bak-XXXXXX.json)
+    cp -f "$EXISTING_ASSETS_CONFIG" "$TEMP_ASSETS_BAK"
+    print_warn "Preserving existing sf-cheatmenu-assets extended.mod.json configuration."
 fi
 
-printf "  ${C_GRAY}Downloading sf-cheatmenu (%s)...${C_RESET}\n" "$MOD_TAG"
-TMP_MOD_ZIP=$(mktemp /tmp/sf-cheatmenu-XXXXXX.zip)
-download_file "$MOD_URL" "$TMP_MOD_ZIP"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/sf-cheatmenu/mod.json" ] && [ -f "$SCRIPT_DIR/sf-cheatmenu-assets/mod.json" ]; then
+    print_step "Installing directly from local repository workspace..."
+    mkdir -p "$RUNTIME_DIR" "$ASSETS_DIR"
+    cp -rf "$SCRIPT_DIR/sf-cheatmenu/"* "$RUNTIME_DIR/"
+    cp -rf "$SCRIPT_DIR/sf-cheatmenu-assets/"* "$ASSETS_DIR/"
+    if [ -f "$SCRIPT_DIR/sf-cheatmenu/native/proxy/powrprof.dll" ]; then
+        cp -f "$SCRIPT_DIR/sf-cheatmenu/native/proxy/powrprof.dll" "$TARGET_DIR/powrprof.dll"
+        print_success "Installed native proxy loader (powrprof.dll) into game root."
+    fi
+    print_success "Local workspace mods copied to $MODS_DIR!"
+else
+    # Try downloading bundle first
+    BUNDLE_URL=""
+    BUNDLE_TAG=""
+    if read -r B_TAG B_URL <<< "$(fetch_release_asset "adromir/enshrouded-cheatmenu" "bundle" "" "")"; then
+        if [ -n "$B_URL" ]; then
+            BUNDLE_TAG="$B_TAG"
+            BUNDLE_URL="$B_URL"
+        fi
+    fi
 
-printf "  ${C_GRAY}Extracting mod into mods directory...${C_RESET}\n"
-extract_zip "$TMP_MOD_ZIP" "$MODS_DIR"
-rm -f "$TMP_MOD_ZIP"
+    if [ -n "$BUNDLE_URL" ]; then
+        printf "  ${C_GRAY}Downloading all-in-one bundle (%s)...${C_RESET}\n" "$BUNDLE_TAG"
+        TMP_BUNDLE_ZIP=$(mktemp /tmp/sf-bundle-XXXXXX.zip)
+        download_file "$BUNDLE_URL" "$TMP_BUNDLE_ZIP"
+        extract_zip "$TMP_BUNDLE_ZIP" "$TARGET_DIR"
+        rm -f "$TMP_BUNDLE_ZIP"
+        print_success "Extracted complete bundle!"
+    else
+        # Fallback to individual mod downloads
+        read -r MOD_TAG MOD_URL <<< "$(fetch_release_asset "adromir/enshrouded-cheatmenu" "sf-cheatmenu-v" "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v0.0.1/sf-cheatmenu-v0.0.1.zip" "v0.0.1")"
 
-if [ -n "$TEMP_BACKUP" ] && [ -f "$TEMP_BACKUP" ]; then
-    cp -f "$TEMP_BACKUP" "$EXISTING_CONFIG"
-    rm -f "$TEMP_BACKUP"
-    print_success "Preserved existing custom extended.mod.json configuration."
+    printf "  ${C_GRAY}Downloading sf-cheatmenu (%s)...${C_RESET}\n" "$MOD_TAG"
+    TMP_MOD_ZIP=$(mktemp /tmp/sf-cheatmenu-XXXXXX.zip)
+    download_file "$MOD_URL" "$TMP_MOD_ZIP"
+    extract_zip "$TMP_MOD_ZIP" "$MODS_DIR"
+    rm -f "$TMP_MOD_ZIP"
+
+    read -r ASSETS_TAG ASSETS_URL <<< "$(fetch_release_asset "adromir/enshrouded-cheatmenu" "sf-cheatmenu-assets" "" "")"
+    if [ -n "$ASSETS_URL" ]; then
+        printf "  ${C_GRAY}Downloading sf-cheatmenu-assets (%s)...${C_RESET}\n" "$ASSETS_TAG"
+        TMP_ASSETS_ZIP=$(mktemp /tmp/sf-assets-XXXXXX.zip)
+        download_file "$ASSETS_URL" "$TMP_ASSETS_ZIP"
+        extract_zip "$TMP_ASSETS_ZIP" "$MODS_DIR"
+        rm -f "$TMP_ASSETS_ZIP"
+    fi
 fi
 
-print_success "SF Cheat Menu $MOD_TAG installed successfully!"
+# Restore configurations if saved
+if [ -n "$TEMP_RUNTIME_BAK" ] && [ -f "$TEMP_RUNTIME_BAK" ]; then
+    cp -f "$TEMP_RUNTIME_BAK" "$EXISTING_RUNTIME_CONFIG"
+    rm -f "$TEMP_RUNTIME_BAK"
+    print_success "Restored custom sf-cheatmenu configuration."
+fi
+if [ -n "$TEMP_ASSETS_BAK" ] && [ -f "$TEMP_ASSETS_BAK" ]; then
+    cp -f "$TEMP_ASSETS_BAK" "$EXISTING_ASSETS_CONFIG"
+    rm -f "$TEMP_ASSETS_BAK"
+    print_success "Restored custom sf-cheatmenu-assets configuration."
+fi
+
+IS_SERVER=0
+if [ -f "$TARGET_DIR/enshrouded_server.exe" ] || [ "${SERVER:-0}" = "1" ]; then
+    IS_SERVER=1
+fi
+
+if [ "$IS_SERVER" = "0" ] && [ -f "$RUNTIME_DIR/powrprof.dll" ]; then
+    cp -f "$RUNTIME_DIR/powrprof.dll" "$TARGET_DIR/powrprof.dll"
+    print_success "Installed native proxy loader (powrprof.dll) into game root directory."
+fi
 
 # Post-install verification and instructions
-FINAL_LUA="$MOD_TARGET_DIR/src/mod.lua"
-FINAL_JSON="$MOD_TARGET_DIR/mod.json"
+FINAL_LUA="$RUNTIME_DIR/src/mod.lua"
+FINAL_JSON="$RUNTIME_DIR/mod.json"
 
 if [ -f "$FINAL_LUA" ] && [ -f "$FINAL_JSON" ]; then
     printf "${C_GREEN}\n"
     printf "================================================================\n"
-    printf "                Installation Completed Successfully!            \n"
-    printf "================================================================\n"
-    printf " Mod Location: %s\n" "$MOD_TARGET_DIR"
-    printf " Mod Version:  %s\n\n" "$MOD_TAG"
-    printf " [IMPORTANT FOR LINUX / PROTON / STEAM DECK / DEDICATED SERVER]\n"
-    printf " Wine/Proton disables custom native DLLs by default.\n"
-    printf " You MUST enable the DLL override for ShroudForge to load:\n\n"
-    printf " 1. Steam Client (Steam Deck / Desktop Linux):\n"
-    printf "    Right-click Enshrouded -> Properties -> General -> Launch Options:\n"
-    printf "    WINEDLLOVERRIDES=\"winmm=n,b\" %%command%%\n\n"
-    printf " 2. Dedicated Server / Wine CLI:\n"
-    printf "    export WINEDLLOVERRIDES=\"winmm=n,b\"\n\n"
-    printf " In-game Hotkey: Press F9 to open ShroudForge Mod Menu\n"
-    printf " Web Configurator: https://adromir.github.io/enshrouded-cheatmenu/\n"
+    if [ "$IS_SERVER" = "1" ]; then
+        printf "          Dedicated Server Installation Completed!              \n"
+        printf "================================================================\n"
+        printf " Installed Packages:\n"
+        printf "  - SF Cheat Menu (Runtime): %s\n" "$RUNTIME_DIR"
+        printf "  - SF Cheat Menu Assets:    %s\n\n" "$ASSETS_DIR"
+        printf " Dedicated Server Setup (Linux / Wine / Docker):\n"
+        printf " 1. Configure server rules in: %s/extended.mod.json\n" "$RUNTIME_DIR"
+        printf "    (Set XP multipliers, item yields, durability, free crafting, etc.)\n"
+        printf " 2. Ensure ShroudForge winmm override is enabled in your server launch script:\n"
+        printf "    export WINEDLLOVERRIDES=\"winmm=n,b\"\n"
+        printf " 3. Launch enshrouded_server.exe. The server runs the pure Lua runtime mod.\n"
+        printf "    Native DLLs (powrprof.dll) are intentionally not needed on the server.\n"
+    else
+        printf "             Client Installation Completed Successfully!        \n"
+        printf "================================================================\n"
+        printf " Installed Packages:\n"
+        printf "  - SF Cheat Menu (Runtime): %s\n" "$RUNTIME_DIR"
+        printf "  - SF Cheat Menu Assets:    %s\n\n" "$ASSETS_DIR"
+        printf " [IMPORTANT FOR LINUX / PROTON / STEAM DECK CLIENT]\n"
+        printf " Wine/Proton disables custom native DLLs by default.\n"
+        printf " Set Launch Options in Steam (Enshrouded -> Properties -> General):\n"
+        printf "    WINEDLLOVERRIDES=\"powrprof=n,b;winmm=n,b\" %%command%%\n\n"
+        printf " In-game Hotkey: Press F9 to open ShroudForge Mod Menu\n"
+        printf " Web Configurator: https://adromir.github.io/enshrouded-cheatmenu/\n"
+    fi
     printf "================================================================${C_RESET}\n"
 else
     print_warn "Installation finished, but some mod files could not be verified."
-    print_warn "Check directory: $MOD_TARGET_DIR"
+    print_warn "Check directory: $RUNTIME_DIR"
 fi

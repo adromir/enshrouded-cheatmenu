@@ -146,6 +146,86 @@ header {
   transform: translateY(-1px);
 }
 
+/* Mod Selector Bar */
+.mod-selector-bar {
+  background: rgba(19, 21, 27, 0.95);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 0.6rem 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.mod-selector-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.selector-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mod-tabs {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.mod-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.mod-tab:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-main);
+  border-color: var(--border-accent);
+}
+
+.mod-tab.active {
+  background: rgba(255, 122, 24, 0.15);
+  border-color: var(--ember-orange);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 122, 24, 0.25);
+}
+
+.tab-badge {
+  font-size: 0.72rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tab-badge.runtime {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+}
+
+.tab-badge.patch {
+  background: rgba(251, 192, 45, 0.15);
+  color: #fbc02d;
+  border: 1px solid rgba(251, 192, 45, 0.3);
+}
+
 /* Preset Bar */
 .preset-bar {
   background: var(--bg-secondary);

@@ -55,11 +55,30 @@
     </div>
   </header>
 
+  <!-- Mod Package Switcher -->
+  <section class="mod-selector-bar">
+    <div class="mod-selector-container">
+      <span class="selector-label">Target Mod:</span>
+      <div class="mod-tabs">
+        <button id="tab-sf-cheatmenu" class="mod-tab active" data-mod="sf-cheatmenu">
+          <span class="tab-icon">⚡</span>
+          <span class="tab-title">SF Cheat Menu</span>
+          <span class="tab-badge runtime">Live Runtime (F9)</span>
+        </button>
+        <button id="tab-sf-cheatmenu-assets" class="mod-tab" data-mod="sf-cheatmenu-assets">
+          <span class="tab-icon">📦</span>
+          <span class="tab-title">SF Cheat Menu Assets</span>
+          <span class="tab-badge patch">Static KFC Patch</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
   <!-- Preset Bar -->
   <section class="preset-bar">
     <div class="preset-container">
       <span class="preset-label">Quick Presets:</span>
-      <div id="presets-list" style="display: flex; gap: 0.5rem; align-items: center;"></div>
+      <div id="presets-list" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;"></div>
     </div>
   </section>
 
@@ -70,7 +89,7 @@
       <div class="toolbar">
         <div class="search-box">
           <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" placeholder="Search settings (e.g., altar, stack, speed, godmode)...">
+          <input type="text" id="search-input" placeholder="Search settings (e.g., godmode, stamina, damage, durability, xp)...">
         </div>
 
         <div class="toolbar-actions">

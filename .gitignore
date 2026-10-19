@@ -3,3 +3,15 @@ PROJECT_CONTEXT.md
 *.tmp
 temp/
 scratch/
+build/
+*.log
+sf-cheatmenu/native/*.dll
+sf-cheatmenu/native/*.obj
+sf-cheatmenu/native/*.exp
+sf-cheatmenu/native/*.lib
+sf-cheatmenu/native/proxy/*.dll
+sf-cheatmenu/native/proxy/*.obj
+sf-cheatmenu/native/proxy/*.exp
+sf-cheatmenu/native/proxy/*.lib
+
+

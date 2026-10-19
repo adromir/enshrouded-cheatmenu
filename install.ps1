@@ -339,84 +339,199 @@ if ($needsShroudForge) {
     Write-Success "ShroudForge mod loader is already installed."
 }
 
-# Install / Update sf-cheatmenu
-Write-Step "Fetching latest SF Cheat Menu & Server Tweaks release..."
-$modInfo = Get-ReleaseAssetUrl `
-    -Repo "adromir/enshrouded-cheatmenu" `
-    -Pattern "*sf-cheatmenu*.zip" `
-    -StaticFallbackUrl "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v0.0.1/sf-cheatmenu-v0.0.1.zip" `
-    -StaticFallbackVersion "v0.0.1"
+# Install / Update sf-cheatmenu & sf-cheatmenu-assets
+Write-Step "Fetching latest SF Cheat Menu package releases..."
 
 $modsDir = Join-Path $installDir "mods"
 if (-not (Test-Path $modsDir)) {
     [System.IO.Directory]::CreateDirectory($modsDir) | Out-Null
 }
 
-$modTargetDir = Join-Path $modsDir "sf-cheatmenu"
-$existingConfig = Join-Path $modTargetDir "extended.mod.json"
-$hasCustomConfig = Test-Path $existingConfig
-$tempConfigBackup = $null
+$runtimeDir = Join-Path $modsDir "sf-cheatmenu"
+$assetsDir = Join-Path $modsDir "sf-cheatmenu-assets"
 
-if ($hasCustomConfig -and -not $NoBackup) {
-    $timestamp = (Get-Date).ToString("yyyyMMdd-HHmmss")
-    $backupPath = Join-Path $modTargetDir "extended.mod.json.bak-$timestamp"
-    Copy-Item -Path $existingConfig -Destination $backupPath -Force
-    Write-Warn "Existing configuration backed up to: extended.mod.json.bak-$timestamp"
-    
-    # Keep temp copy to restore after archive extraction
-    $tempConfigBackup = [System.IO.Path]::GetTempFileName()
-    Copy-Item -Path $existingConfig -Destination $tempConfigBackup -Force
+# Preserve existing configuration files
+$existingRuntimeConfig = Join-Path $runtimeDir "extended.mod.json"
+$existingAssetsConfig = Join-Path $assetsDir "extended.mod.json"
+$tempRuntimeBak = $null
+$tempAssetsBak = $null
+
+if ((Test-Path $existingRuntimeConfig) -and -not $NoBackup) {
+    $tempRuntimeBak = [System.IO.Path]::GetTempFileName()
+    Copy-Item -Path $existingRuntimeConfig -Destination $tempRuntimeBak -Force
+    Write-Warn "Preserving existing sf-cheatmenu extended.mod.json configuration."
+}
+if ((Test-Path $existingAssetsConfig) -and -not $NoBackup) {
+    $tempAssetsBak = [System.IO.Path]::GetTempFileName()
+    Copy-Item -Path $existingAssetsConfig -Destination $tempAssetsBak -Force
+    Write-Warn "Preserving existing sf-cheatmenu-assets extended.mod.json configuration."
 }
 
-Write-Host "  Downloading sf-cheatmenu ($($modInfo.Version))..." -ForegroundColor Gray
-$modTempZip = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "sf-cheatmenu-$([System.Guid]::NewGuid().ToString('N')).zip")
+# Check if running locally inside the repository workspace
+$localRepoRoot = $PSScriptRoot
+$isLocalRepo = (Test-Path (Join-Path $localRepoRoot "sf-cheatmenu\mod.json")) -and (Test-Path (Join-Path $localRepoRoot "sf-cheatmenu-assets\mod.json"))
 
-try {
-    Invoke-WebRequest -Uri $modInfo.Url -OutFile $modTempZip -UseBasicParsing
-    Write-Host "  Extracting mod into mods directory..." -ForegroundColor Gray
-    Extract-ZipArchive -ZipPath $modTempZip -DestinationDir $modsDir
-    
-    # If user had custom settings, restore their config
-    if ($tempConfigBackup -and (Test-Path $tempConfigBackup)) {
-        Copy-Item -Path $tempConfigBackup -Destination $existingConfig -Force
-        Remove-Item -Path $tempConfigBackup -Force -ErrorAction SilentlyContinue
-        Write-Success "Preserved existing custom extended.mod.json settings."
+if ($isLocalRepo) {
+    Write-Step "Installing directly from local repository workspace..."
+    New-Item -ItemType Directory -Force -Path $runtimeDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $assetsDir | Out-Null
+
+    Copy-Item -Path (Join-Path $localRepoRoot "sf-cheatmenu\*") -Destination $runtimeDir -Recurse -Force
+    Copy-Item -Path (Join-Path $localRepoRoot "sf-cheatmenu-assets\*") -Destination $assetsDir -Recurse -Force
+
+    $localProxy = Join-Path $localRepoRoot "sf-cheatmenu\native\proxy\powrprof.dll"
+    if (Test-Path $localProxy) {
+        Copy-Item -Path $localProxy -Destination $installDir -Force
+        Write-Success "Installed native proxy loader (powrprof.dll) into game root."
+    }
+    Write-Success "Local workspace mods copied to $modsDir!"
+} else {
+    # Attempt downloading complete release bundle first
+    $bundleInfo = $null
+    try {
+        $bundleInfo = Get-ReleaseAssetUrl `
+            -Repo "adromir/enshrouded-cheatmenu" `
+            -Pattern "*bundle*.zip" `
+            -StaticFallbackUrl "" `
+            -StaticFallbackVersion ""
+    } catch {
+        $bundleInfo = $null
     }
 
-    Write-Success "SF Cheat Menu $($modInfo.Version) installed successfully!"
-}
-finally {
-    if (Test-Path $modTempZip) { Remove-Item $modTempZip -Force -ErrorAction SilentlyContinue }
-    if ($tempConfigBackup -and (Test-Path $tempConfigBackup)) { Remove-Item $tempConfigBackup -Force -ErrorAction SilentlyContinue }
+    if ($bundleInfo -and $bundleInfo.Url) {
+        Write-Host "  Downloading complete bundle ($($bundleInfo.Version))..." -ForegroundColor Gray
+        $bundleZip = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "sf-bundle-$([System.Guid]::NewGuid().ToString('N')).zip")
+        try {
+            Invoke-WebRequest -Uri $bundleInfo.Url -OutFile $bundleZip -UseBasicParsing
+            Write-Host "  Extracting bundle into game directory..." -ForegroundColor Gray
+            Extract-ZipArchive -ZipPath $bundleZip -DestinationDir $installDir
+            Write-Success "All-in-one bundle extracted successfully!"
+        }
+        finally {
+            if (Test-Path $bundleZip) { Remove-Item $bundleZip -Force -ErrorAction SilentlyContinue }
+        }
+    } else {
+        # Fallback to individual mod zip downloads
+        Write-Host "  Downloading sf-cheatmenu release..." -ForegroundColor Gray
+        $modInfo = Get-ReleaseAssetUrl `
+            -Repo "adromir/enshrouded-cheatmenu" `
+            -Pattern "*sf-cheatmenu-v*.zip" `
+            -StaticFallbackUrl "https://github.com/adromir/enshrouded-cheatmenu/releases/download/v0.0.1/sf-cheatmenu-v0.0.1.zip" `
+            -StaticFallbackVersion "v0.0.1"
+
+        $modTempZip = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "sf-cheatmenu-$([System.Guid]::NewGuid().ToString('N')).zip")
+        try {
+            Invoke-WebRequest -Uri $modInfo.Url -OutFile $modTempZip -UseBasicParsing
+            Extract-ZipArchive -ZipPath $modTempZip -DestinationDir $modsDir
+            Write-Success "sf-cheatmenu extracted successfully!"
+        }
+        finally {
+            if (Test-Path $modTempZip) { Remove-Item $modTempZip -Force -ErrorAction SilentlyContinue }
+        }
+
+        # Try downloading sf-cheatmenu-assets
+        try {
+            $assetsInfo = Get-ReleaseAssetUrl `
+                -Repo "adromir/enshrouded-cheatmenu" `
+                -Pattern "*sf-cheatmenu-assets*.zip" `
+                -StaticFallbackUrl "" `
+                -StaticFallbackVersion ""
+            if ($assetsInfo -and $assetsInfo.Url) {
+                Write-Host "  Downloading sf-cheatmenu-assets ($($assetsInfo.Version))..." -ForegroundColor Gray
+                $assetsTempZip = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "sf-assets-$([System.Guid]::NewGuid().ToString('N')).zip")
+                try {
+                    Invoke-WebRequest -Uri $assetsInfo.Url -OutFile $assetsTempZip -UseBasicParsing
+                    Extract-ZipArchive -ZipPath $assetsTempZip -DestinationDir $modsDir
+                    Write-Success "sf-cheatmenu-assets extracted successfully!"
+                }
+                finally {
+                    if (Test-Path $assetsTempZip) { Remove-Item $assetsTempZip -Force -ErrorAction SilentlyContinue }
+                }
+            }
+        } catch {
+            Write-Warn "Note: sf-cheatmenu-assets zip not found in release assets."
+        }
+    }
+
+    # Proxy handling for client target
+    $isServer = $Server -or (Test-Path (Join-Path $installDir "enshrouded_server.exe"))
+    $extractedProxy = Join-Path $runtimeDir "powrprof.dll"
+    if ((Test-Path $extractedProxy) -and -not $isServer) {
+        Copy-Item -Path $extractedProxy -Destination (Join-Path $installDir "powrprof.dll") -Force
+        Write-Success "Installed native proxy loader (powrprof.dll) into game root directory."
+    }
 }
 
-# Final Validation
-$finalModLua = Join-Path $modTargetDir "src\mod.lua"
-$finalModJson = Join-Path $modTargetDir "mod.json"
+# Restore user configuration files if they were backed up
+if ($tempRuntimeBak -and (Test-Path $tempRuntimeBak)) {
+    Copy-Item -Path $tempRuntimeBak -Destination $existingRuntimeConfig -Force
+    Remove-Item -Path $tempRuntimeBak -Force -ErrorAction SilentlyContinue
+    Write-Success "Restored existing sf-cheatmenu configuration."
+}
+if ($tempAssetsBak -and (Test-Path $tempAssetsBak)) {
+    Copy-Item -Path $tempAssetsBak -Destination $existingAssetsConfig -Force
+    Remove-Item -Path $tempAssetsBak -Force -ErrorAction SilentlyContinue
+    Write-Success "Restored existing sf-cheatmenu-assets configuration."
+}
 
-if ((Test-Path $finalModLua) -and (Test-Path $finalModJson)) {
-    Write-Host @"
+# Run ShroudForge Prepare to compile KFC static asset patches
+$sfCli = Join-Path $shroudforgeFolder "shroudforge.exe"
+if (Test-Path $sfCli) {
+    Write-Step "Compiling static asset patches into enshrouded.kfc via ShroudForge..."
+    try {
+        & $sfCli prepare $installDir
+        Write-Success "Pregame asset preparation completed successfully!"
+    } catch {
+        Write-Warn "Could not execute automatic prepare pass: $_"
+    }
+}
+
+$finalRuntimeLua = Join-Path $runtimeDir "src\mod.lua"
+$finalRuntimeJson = Join-Path $runtimeDir "mod.json"
+$finalAssetsLua = Join-Path $assetsDir "src\mod.lua"
+
+if ((Test-Path $finalRuntimeLua) -and (Test-Path $finalRuntimeJson)) {
+    if ($isServer) {
+        Write-Host @"
 
 ================================================================
-                Installation Completed Successfully!            
+          Dedicated Server Installation Completed!              
 ================================================================
- Mod Location: $modTargetDir
- Mod Version:  $($modInfo.Version)
+ Installed Packages:
+  - SF Cheat Menu:        $runtimeDir
+  - SF Cheat Menu Assets: $assetsDir
+
+ Server Configuration:
+ 1. Edit '$existingRuntimeConfig'
+    to authoritatively configure server rules (XP, drops, durability, free crafting).
+ 2. Start 'enshrouded_server.exe'. ShroudForge automatically loads the mod.
+ 3. All connected clients inherit the authoritative server settings.
+ 4. Native DLLs (powrprof.dll) are intentionally not needed on the server.
+================================================================"
+"@ -ForegroundColor Green
+    } else {
+        Write-Host @"
+
+================================================================
+             Client Installation Completed Successfully!        
+================================================================
+ Installed Packages:
+  - SF Cheat Menu (Runtime): $runtimeDir
+  - SF Cheat Menu Assets:    $assetsDir
 
  Quick Start Guide:
  1. Launch Enshrouded normally (via Steam or shortcut).
  2. In-game, press F9 to toggle the ShroudForge Mod Menu.
- 3. Select 'SF Cheat Menu & Server Tweaks' to customize all cheats.
+ 3. Select 'SF Cheat Menu' to customize live cheats (toggles in real-time).
+ 4. Static asset patches (9999 stacks, 160 chest slots, cliff walking)
+    have been compiled into enshrouded.kfc!
 
  Interactive Web Configurator:
    https://adromir.github.io/enshrouded-cheatmenu/
-
- Dedicated Server Note:
-   Edit '$existingConfig'
-   to authoritatively configure world multipliers and stack sizes.
-================================================================
+================================================================"
 "@ -ForegroundColor Green
+    }
 } else {
     Write-Warn "Installation completed, but some mod files could not be verified."
-    Write-Warn "Please check: $modTargetDir"
+    Write-Warn "Please check: $runtimeDir"
 }

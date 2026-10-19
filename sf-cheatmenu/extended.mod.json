@@ -1,0 +1,323 @@
+{
+  "$schema": "https://bonsaibauer.github.io/shroudforge/schemas/extended.mod.schema.json",
+  "schemaVersion": 1,
+  "enabled": true,
+  "targets": [
+    "client",
+    "server"
+  ],
+  "links": {
+    "source-github": "https://github.com/adromir/enshrouded-cheatmenu",
+    "website": "https://adromir.github.io/enshrouded-cheatmenu/"
+  },
+  "changelog": [
+    "v0.0.1: Pure live runtime cheat menu with 33 dynamic features and C++ native sidecar. Instant F9 toggling with zero restart requirements."
+  ],
+  "settings": {
+    "unlimitedGliding": {
+      "value": true,
+      "label": "Infinite Gliding (Unlimited Flight)",
+      "description": "Disables glider stamina drain for unlimited glider flight.",
+      "control": "checkbox"
+    },
+    "noFallDamage": {
+      "value": true,
+      "label": "No Fall Damage (Personal & Native)",
+      "description": "Eliminates all fall damage regardless of height.",
+      "control": "checkbox"
+    },
+    "infiniteAirJump": {
+      "value": true,
+      "label": "Infinite Air-Jump / Multi-Jump (Native)",
+      "description": "Bypasses double-jump limit. Allows unlimited mid-air jumps to ascend or fly.",
+      "control": "checkbox"
+    },
+    "creativeHover": {
+      "value": false,
+      "label": "Creative Mode Hovering / Flight (Personal & Native)",
+      "description": "Allows floating stationary in mid-air and flying vertically without falling (Space to ascend, C to descend, or Ctrl+H to toggle).",
+      "control": "checkbox"
+    },
+    "hoverSpeed": {
+      "value": 100,
+      "label": "Hover Speed Multiplier %",
+      "description": "Vertical ascent and descent speed while creative hovering (100% = normal, up to 500%).",
+      "control": "slider",
+      "min": 50,
+      "max": 500,
+      "step": 25
+    },
+    "infiniteHealth": {
+      "value": true,
+      "label": "Infinite Health / God Mode (Personal)",
+      "description": "Clamps Health_Min to Health_Max and zeroes incoming damage factors. You become immune to lethal damage.",
+      "control": "checkbox"
+    },
+    "healthRegenMultiplier": {
+      "value": 1,
+      "label": "Health Regen Multiplier (Personal)",
+      "description": "Multiplies natural health regeneration rate for your character (1x = standard, up to 500x).",
+      "control": "slider",
+      "min": 1,
+      "max": 500,
+      "step": 5
+    },
+    "infiniteStamina": {
+      "value": true,
+      "label": "Infinite Stamina (Personal)",
+      "description": "Locks stamina at maximum. Disables stamina drain for sprinting, fighting, and climbing.",
+      "control": "checkbox"
+    },
+    "staminaRegenMultiplier": {
+      "value": 1,
+      "label": "Stamina Regen Multiplier (Personal)",
+      "description": "Multiplies natural stamina regeneration rate (1x = standard, up to 500x).",
+      "control": "slider",
+      "min": 1,
+      "max": 500,
+      "step": 5
+    },
+    "infiniteMana": {
+      "value": true,
+      "label": "Infinite Mana (Personal)",
+      "description": "Locks mana at maximum. Spells and abilities consume zero mana.",
+      "control": "checkbox"
+    },
+    "manaRegenMultiplier": {
+      "value": 1,
+      "label": "Mana Regen Multiplier (Personal)",
+      "description": "Multiplies natural mana regeneration rate (1x = standard, up to 500x).",
+      "control": "slider",
+      "min": 1,
+      "max": 500,
+      "step": 5
+    },
+    "noHypothermia": {
+      "value": true,
+      "label": "No Hypothermia / Cold Immunity (Personal)",
+      "description": "Maintains body heat at maximum; eliminates freezing in cold or snowy biomes.",
+      "control": "checkbox"
+    },
+    "infiniteOxygen": {
+      "value": true,
+      "label": "Infinite Oxygen / Diving Breath (Personal)",
+      "description": "Maintains oxygen reserve at maximum; prevents drowning while diving.",
+      "control": "checkbox"
+    },
+    "infiniteConsumables": {
+      "value": true,
+      "label": "Infinite Consumables (Native)",
+      "description": "Potions, food, bandages, and flasks are not consumed upon use.",
+      "control": "checkbox"
+    },
+    "infiniteShroud": {
+      "value": true,
+      "label": "Freeze Shroud Timer / Shroud God Mode (Native)",
+      "description": "Bypasses engine shroud fog checks. Shroud timer is locked and will never tick down or kill you in the Shroud/Miasma.",
+      "control": "checkbox"
+    },
+    "oneHitKill": {
+      "value": false,
+      "label": "One-Hit Kill / Infinite Damage (Personal)",
+      "description": "Deals lethal damage on any enemy or boss hit, instantly defeating them.",
+      "control": "checkbox"
+    },
+    "critChance": {
+      "value": 100,
+      "label": "Critical Hit Chance % (Personal)",
+      "description": "Additional critical hit chance percentage (0% to 100% max).",
+      "control": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1
+    },
+    "critDamageMultiplier": {
+      "value": 2000,
+      "label": "Critical Damage % (Personal)",
+      "description": "Multiplier for critical strike damage (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "meleeDamageMultiplier": {
+      "value": 2000,
+      "label": "Melee Damage % (Personal)",
+      "description": "Multiplier for melee weapon attacks (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "rangedDamageMultiplier": {
+      "value": 2000,
+      "label": "Ranged Damage % (Personal)",
+      "description": "Multiplier for bows and thrown weapons (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "magicDamageMultiplier": {
+      "value": 2000,
+      "label": "Magic Damage % (Personal)",
+      "description": "Multiplier for staves, wands, and spells (100% = default, up to 2000% max).",
+      "control": "slider",
+      "min": 100,
+      "max": 2000,
+      "step": 25
+    },
+    "fastBowDrawSpeed": {
+      "value": false,
+      "label": "Rapid Bow Draw Speed (Fast Shooting)",
+      "description": "Reduces bow draw delay in weapon item definitions, allowing rapid firing of arrows.",
+      "control": "checkbox"
+    },
+    "infiniteArrows": {
+      "value": true,
+      "label": "Infinite Arrows & Quiver (Native)",
+      "description": "Bypasses arrow consumption when shooting bows. Arrows in quiver never decrease.",
+      "control": "checkbox"
+    },
+    "infiniteDurability": {
+      "value": true,
+      "label": "Infinite Item Durability (World & Native)",
+      "description": "Disables durability loss for all weapons, tools, and armor world-wide.",
+      "control": "checkbox"
+    },
+    "freeCrafting": {
+      "value": true,
+      "label": "Free Building & Crafting (Hammer & Workbenches) (Native & Server)",
+      "description": "Allows placing building blocks with the construction hammer and crafting items at workbenches with zero resource costs.",
+      "control": "checkbox"
+    },
+    "unlockAllBlueprints": {
+      "value": false,
+      "label": "Unlock All Blueprints & Building Blocks (Safe Asset Pass)",
+      "description": "Safely unlocks all missing building blocks, furniture, and workshop blueprints without corrupting item requirements.",
+      "control": "checkbox"
+    },
+    "freeReskill": {
+      "value": true,
+      "label": "Free Reskill / Skill Reset (Zero Rune Costs)",
+      "description": "Allows resetting skills at the Flame Altar with zero Rune costs.",
+      "control": "checkbox"
+    },
+    "itemAmountMultiplier": {
+      "value": 1,
+      "label": "Resource Drop & Yield Multiplier (World/Server)",
+      "description": "Multiplies item quantities dropped from harvesting and mining (1x to 100x).",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "xpMultiplier": {
+      "value": 1,
+      "label": "Experience (XP) Multiplier (World/Server)",
+      "description": "Multiplies XP earned from combat, exploration, quests, and mining (1x = default, up to 100x).",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
+    },
+    "dumbEnemies": {
+      "value": false,
+      "label": "Pacify World Enemies (Server/Host AI)",
+      "description": "Enemies will not initiate attacks and are completely pacified.",
+      "control": "checkbox"
+    },
+    "enemyPerceptionMultiplier": {
+      "value": 100,
+      "label": "Enemy Perception Range % (World/Server)",
+      "description": "Detection and sight range of enemies (100% = normal, 0% = completely blind).",
+      "control": "slider",
+      "min": 0,
+      "max": 200,
+      "step": 5
+    },
+    "productionSpeedMultiplier": {
+      "value": 1,
+      "label": "Production Station Speed (World/Server)",
+      "description": "Speed multiplier for furnaces, kilns, drying racks, and workbenches (1x to 50x).",
+      "control": "slider",
+      "min": 1,
+      "max": 50,
+      "step": 1
+    },
+    "plantGrowthMultiplier": {
+      "value": 1,
+      "label": "Plant & Crop Growth Speed (World/Server)",
+      "description": "Speed multiplier for seedlings, farm plots, and tree growth (1x to 50x).",
+      "control": "slider",
+      "min": 1,
+      "max": 50,
+      "step": 1
+    }
+  },
+  "groups": [
+    {
+      "label": "Movement & Flight Cheats",
+      "description": "Instant runtime flight, no fall damage, infinite air jump, and creative hover.",
+      "settings": [
+        "unlimitedGliding",
+        "noFallDamage",
+        "infiniteAirJump",
+        "creativeHover",
+        "hoverSpeed"
+      ]
+    },
+    {
+      "label": "Player Attributes & God Mode",
+      "description": "Invulnerability, unlimited stamina, mana, oxygen, temperature, consumables, and shroud fog immunity.",
+      "settings": [
+        "infiniteHealth",
+        "healthRegenMultiplier",
+        "infiniteStamina",
+        "staminaRegenMultiplier",
+        "infiniteMana",
+        "manaRegenMultiplier",
+        "noHypothermia",
+        "infiniteOxygen",
+        "infiniteConsumables",
+        "infiniteShroud"
+      ]
+    },
+    {
+      "label": "Combat, Damage & Arrows",
+      "description": "Instant one-hit kill, critical strike multipliers, damage amplification, rapid bow draw, and infinite arrows.",
+      "settings": [
+        "oneHitKill",
+        "critChance",
+        "critDamageMultiplier",
+        "meleeDamageMultiplier",
+        "rangedDamageMultiplier",
+        "magicDamageMultiplier",
+        "fastBowDrawSpeed",
+        "infiniteArrows"
+      ]
+    },
+    {
+      "label": "World Rules, Crafting & Durability",
+      "description": "Unbreakable gear durability, free bench crafting, blueprint unlocking, free reskill, and item drops.",
+      "settings": [
+        "infiniteDurability",
+        "freeCrafting",
+        "unlockAllBlueprints",
+        "freeReskill",
+        "itemAmountMultiplier"
+      ]
+    },
+    {
+      "label": "World Difficulty, XP & Production",
+      "description": "Passive enemy AI, perception range, XP multiplier, and accelerated workstation production / plant growth.",
+      "settings": [
+        "dumbEnemies",
+        "enemyPerceptionMultiplier",
+        "xpMultiplier",
+        "productionSpeedMultiplier",
+        "plantGrowthMultiplier"
+      ]
+    }
+  ]
+}
