@@ -19,7 +19,7 @@ try {
     $IncludeDir = "-Iinclude"
     $OutNative = "sf-native.dll"
 
-    & $ClangBin -shared -O2 -std=c++17 $IncludeDir $Sources -luser32 -o $OutNative
+    & $ClangBin -fuse-ld=lld -shared -O2 -std=c++17 $IncludeDir $Sources -luser32 -o $OutNative
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Compilation of sf-native.dll failed."
         exit $LASTEXITCODE
@@ -31,7 +31,7 @@ try {
     $ProxyDef = "proxy/powrprof.def"
     $OutProxy = "proxy/powrprof.dll"
 
-    & $ClangBin -shared -O2 -D_CRT_SECURE_NO_WARNINGS $ProxySrc "-Wl,-def:$ProxyDef" -o $OutProxy
+    & $ClangBin -fuse-ld=lld -shared -O2 -D_CRT_SECURE_NO_WARNINGS $ProxySrc "-Wl,-def:$ProxyDef" -o $OutProxy
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Compilation of powrprof.dll failed."
         exit $LASTEXITCODE

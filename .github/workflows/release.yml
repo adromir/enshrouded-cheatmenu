@@ -43,7 +43,7 @@ jobs:
         run: |
           Write-Host "Compiling sf-native.dll..."
           cd sf-cheatmenu/native
-          clang++ -shared -O2 -std=c++17 -Iinclude src/main.cpp src/pattern_scan.cpp src/patcher.cpp -luser32 -o sf-native.dll
+          clang++ -fuse-ld=lld -shared -O2 -std=c++17 -Iinclude src/main.cpp src/pattern_scan.cpp src/patcher.cpp -luser32 -o sf-native.dll
           if (-not (Test-Path sf-native.dll)) {
             Write-Error "Native DLL compilation failed!"
             exit 1
@@ -51,7 +51,7 @@ jobs:
           Write-Host "Successfully compiled sf-native.dll ($(Get-Item sf-native.dll).Length bytes)"
           
           Write-Host "Compiling proxy powrprof.dll..."
-          clang++ -shared -O2 -D_CRT_SECURE_NO_WARNINGS proxy/powrprof.cpp "-Wl,-def:proxy/powrprof.def" -o proxy/powrprof.dll
+          clang++ -fuse-ld=lld -shared -O2 -D_CRT_SECURE_NO_WARNINGS proxy/powrprof.cpp "-Wl,-def:proxy/powrprof.def" -o proxy/powrprof.dll
           if (-not (Test-Path proxy/powrprof.dll)) {
             Write-Error "Proxy powrprof.dll compilation failed!"
             exit 1
