@@ -42,6 +42,22 @@ local ok_patch, err_patch = pcall(function()
     local jump_mult = (read_cfg("jumpHeightMultiplier", 100) or 100) / 100.0
     local no_slope = read_cfg("noSlopeSlide", false) == true
 
+    if no_slope then
+        local slope_defs = game.assets.get_resources_by_type("keen::SlopeDefinition")
+        if slope_defs then
+            for _, sd_res in ipairs(slope_defs) do
+                local sd = sd_res.data
+                if sd then
+                    sd.steepFloorAngle = 89.0
+                    sd.slidingAngle = 89.0
+                    sd.fallDamageAngle = 89.0
+                    sd.slidingMaterialMinAngle = 89.0
+                    sd_res.data = sd
+                end
+            end
+        end
+    end
+
     if move_mult > 1.0 or jump_mult > 1.0 or no_slope then
         local ok_res, player_res = pcall(game.assets.get_resource, "c3db66d6-89a5-4a6c-a8e3-d9a1f6009812", "keen::ecs::TemplateResource", 0)
         if ok_res and player_res and player_res.data and player_res.data.components then
@@ -59,6 +75,13 @@ local ok_patch, err_patch = pcall(function()
                     if jp then
                         local base_h = (jp.jumpHeight and jp.jumpHeight > 0) and jp.jumpHeight or 4.0
                         jp.jumpHeight = math.min(base_h * jump_mult, 40.0)
+                    end
+                elseif comp.type == "keen::ecs::Locomotion" and no_slope then
+                    local loc = comp.value
+                    if loc and loc.slideConfig then
+                        loc.slideConfig.downhillAccelerationFactor = 0.0
+                        loc.slideConfig.downhillAcceleration = 0.0
+                        loc.slideConfig.lateralAcceleration = 0.0
                     end
                 elseif comp.type == "keen::ecs::SlopeConfig" and no_slope then
                     local slope = comp.value
@@ -178,9 +201,10 @@ local ok_patch, err_patch = pcall(function()
         end
     end
 
-    -- 5. Max Stack Size & Item Tweaks (Flame Altar Item, Rake)
+    -- 5. Max Stack Size & Item Tweaks (Flame Altar Item, Rake, Free Building)
     local stack_size = read_cfg("maxStackSize", 0) or 0
     local rake_anywhere = read_cfg("rakeAnywhere", false) == true
+    local free_crafting = read_cfg("freeCrafting", false) == true
 
     local items = game.assets.get_resources_by_type("keen::ItemInfo")
     if items then
@@ -208,6 +232,20 @@ local ok_patch, err_patch = pcall(function()
                         changed = true
                     end
                 end
+                if free_crafting and item.equipment then
+                    if item.equipment.placementConsume ~= false then
+                        item.equipment.placementConsume = false
+                        changed = true
+                    end
+                    if item.equipment.requiredCraftingIngredients then
+                        for _, req in ipairs(item.equipment.requiredCraftingIngredients) do
+                            if req.count and req.count > 0 then
+                                req.count = 0
+                                changed = true
+                            end
+                        end
+                    end
+                end
                 if changed then
                     item_res.data = item
                 end
@@ -215,7 +253,7 @@ local ok_patch, err_patch = pcall(function()
         end
     end
 
-    -- 6. Recipes: Best Tier 3 Backpack
+    -- 6. Recipes: Best Tier 3 Backpack & Free Crafting (Zero Ingredient Costs)
     local best_bp = read_cfg("cheatBestBackpack", false) == true
     local recipe_registries = game.assets.get_resources_by_type("keen::RecipeRegistryResource")
     if recipe_registries then
@@ -229,7 +267,6 @@ local ok_patch, err_patch = pcall(function()
                 end
             end
         end
-
         for _, reg_res in ipairs(recipe_registries) do
             local rdata = reg_res.data
             if rdata and rdata.recipes then
@@ -252,6 +289,18 @@ local ok_patch, err_patch = pcall(function()
                             end
                         end
                         changed_reg = true
+                    end
+                    if free_crafting and recipe.input then
+                        for _, inp in ipairs(recipe.input) do
+                            if inp.itemStack and inp.itemStack.count and inp.itemStack.count > 0 then
+                                inp.itemStack.count = 0
+                                changed_reg = true
+                            end
+                            if inp.inputItemCategory and inp.inputItemCategory.count and inp.inputItemCategory.count > 0 then
+                                inp.inputItemCategory.count = 0
+                                changed_reg = true
+                            end
+                        end
                     end
                 end
 

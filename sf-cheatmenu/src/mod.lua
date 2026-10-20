@@ -17,20 +17,36 @@ local function finite(value)
     return type(value) == "number" and value == value and math.abs(value) < math.huge
 end
 
+local function read_cfg(key, fallback)
+    if shroudforge and shroudforge.settings and type(shroudforge.settings.get) == "function" then
+        local v = shroudforge.settings.get(key, nil)
+        if v ~= nil then return v end
+    end
+    if io and io.exists and io.exists("extended.mod.json") then
+        local text = io.read_to_string("extended.mod.json")
+        if text then
+            local pattern = '"' .. key .. '"%s*:%s*%{[^%}]-"value"%s*:%s*([%w_%-%.]+)'
+            local match = text:match(pattern)
+            if match then
+                if match == "true" then return true end
+                if match == "false" then return false end
+                local num = tonumber(match)
+                if num ~= nil then return num end
+            end
+        end
+    end
+    return fallback
+end
+
 --- Safe getter for boolean settings
 local function enabled(key)
-    if shroudforge and shroudforge.settings and type(shroudforge.settings.get) == "function" then
-        return shroudforge.settings.get(key, false) == true
-    end
-    return false
+    return read_cfg(key, false) == true
 end
 
 --- Safe getter for numeric settings / sliders
 local function get_num(key, fallback)
-    if shroudforge and shroudforge.settings and type(shroudforge.settings.get) == "function" then
-        local val = shroudforge.settings.get(key, fallback)
-        if type(val) == "number" and val == val then return val end
-    end
+    local val = read_cfg(key, fallback)
+    if type(val) == "number" and val == val then return val end
     return fallback
 end
 
@@ -70,7 +86,7 @@ local function check_enabled(key)
     if key == "meleeDamageMultiplier" then return get_num("meleeDamageMultiplier", 100) > 100 end
     if key == "rangedDamageMultiplier" then return get_num("rangedDamageMultiplier", 100) > 100 end
     if key == "magicDamageMultiplier" then return get_num("magicDamageMultiplier", 100) > 100 end
-    if key == "itemAmountMultiplier" then return get_num("itemAmountMultiplier", 1) > 1 end
+    if key:find("^itemAmountMultiplier") then return get_num("itemAmountMultiplier", 1) > 1 end
     if key == "enemyPerceptionMultiplier" then return get_num("enemyPerceptionMultiplier", 100) ~= 100 end
     if key == "productionSpeedMultiplier" then return get_num("productionSpeedMultiplier", 1) > 1 end
     if key == "plantGrowthMultiplier" then return get_num("plantGrowthMultiplier", 1) > 1 end
@@ -206,7 +222,25 @@ local function update(delta_seconds)
         if drop_mult > 1 then
             local t_drop = runtime.overrides.service(game_settings, "resourceDropStackAmountFactor")
             if t_drop then
-                overrides:apply(t_drop.key, "itemAmountMultiplier", t_drop, function(_, base)
+                overrides:apply(t_drop.key, "itemAmountMultiplier_drop", t_drop, function(_, base)
+                    return (base or 1.0) * drop_mult
+                end)
+            end
+            local t_mining = runtime.overrides.service(game_settings, "miningDamageFactor")
+            if t_mining then
+                overrides:apply(t_mining.key, "itemAmountMultiplier_mining", t_mining, function(_, base)
+                    return (base or 1.0) * drop_mult
+                end)
+            end
+            local t_plant = runtime.overrides.service(game_settings, "plantGrowthSpeedFactor")
+            if t_plant then
+                overrides:apply(t_plant.key, "itemAmountMultiplier_plant", t_plant, function(_, base)
+                    return (base or 1.0) * drop_mult
+                end)
+            end
+            local t_factory = runtime.overrides.service(game_settings, "factoryProductionSpeedFactor")
+            if t_factory then
+                overrides:apply(t_factory.key, "itemAmountMultiplier_factory", t_factory, function(_, base)
                     return (base or 1.0) * drop_mult
                 end)
             end

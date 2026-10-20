@@ -35,7 +35,7 @@
     "creativeHover": {
       "value": false,
       "label": "Creative Mode Hovering / Flight (Personal & Native)",
-      "description": "Allows floating stationary in mid-air and flying vertically without falling (Space to ascend, C to descend, or Ctrl+H to toggle).",
+      "description": "Allows floating stationary in mid-air and flying vertically without falling (R to ascend, F to descend, or Ctrl+H to toggle).",
       "control": "checkbox"
     },
     "hoverSpeed": {

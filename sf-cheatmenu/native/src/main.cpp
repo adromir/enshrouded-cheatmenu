@@ -78,19 +78,21 @@ static std::string read_file_safely(const std::string& path) {
 
 static std::atomic<bool> g_creative_hover_enabled{false};
 static std::atomic<int> g_hover_speed_multiplier{100};
-static std::atomic<int> g_hover_ascend_vk{VK_SPACE};
-static std::atomic<int> g_hover_descend_vk{'C'};
+static std::atomic<int> g_hover_ascend_vk{'R'};
+static std::atomic<int> g_hover_descend_vk{'F'};
 static void* g_hover_trampoline = nullptr;
 
-extern "C" void HandleCreativeHover(float* pVelocityY) {
-    if (!g_creative_hover_enabled.load()) return;
+extern "C" void HandleCreativeHover(float* pPosZ, float computedNewZ) {
+    if (!g_creative_hover_enabled.load()) {
+        *pPosZ = computedNewZ;
+        return;
+    }
 
     HWND fg = GetForegroundWindow();
     if (fg) {
         DWORD pid = 0;
         GetWindowThreadProcessId(fg, &pid);
         if (pid != GetCurrentProcessId()) {
-            *pVelocityY = 0.0f;
             return;
         }
     }
@@ -101,14 +103,14 @@ extern "C" void HandleCreativeHover(float* pVelocityY) {
     bool up = (GetAsyncKeyState(ascend_vk) & 0x8000) != 0;
     bool down = (GetAsyncKeyState(descend_vk) & 0x8000) != 0;
 
-    float speed = 8.0f * (static_cast<float>(g_hover_speed_multiplier.load()) / 100.0f);
+    float speed = 0.20f * (static_cast<float>(g_hover_speed_multiplier.load()) / 100.0f);
 
     if (up && !down) {
-        *pVelocityY = speed;
+        *pPosZ += speed;
     } else if (down && !up) {
-        *pVelocityY = -speed;
+        *pPosZ -= speed;
     } else {
-        *pVelocityY = 0.0f;
+        // Zero vertical motion: freeze altitude in mid-air
     }
 }
 
@@ -147,8 +149,10 @@ static std::vector<uint8_t> create_hover_trampoline(uintptr_t handler_addr) {
         0x0F, 0x29, 0x54, 0x24, 0x20,       // movaps [rsp+0x20], xmm2
         0x0F, 0x29, 0x5C, 0x24, 0x30,       // movaps [rsp+0x30], xmm3
 
-        // Argument 1: rcx = r15 + 4 (pointer to velocity.y)
-        0x49, 0x8D, 0x4F, 0x04,             // lea rcx, [r15+4]
+        // Argument 1: rcx = r15 + 8 (pointer to pos.z)
+        0x49, 0x8D, 0x4F, 0x08,             // lea rcx, [r15+8]
+        // Argument 2: xmm1 = xmm0 (computed new Z from engine)
+        0x0F, 0x28, 0xC8,                   // movaps xmm1, xmm0
 
         // Shadow space (32 bytes, maintains 16-byte alignment)
         0x48, 0x83, 0xEC, 0x20,             // sub rsp, 0x20
@@ -588,7 +592,7 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
             sf_native::MemoryPatch p;
             p.name = feat.name;
             p.target_address = match;
-            p.patch_bytes = { 0x31, 0xC0, 0xC3 }; // xor eax, eax; ret
+            p.patch_bytes = { 0xB0, 0x01, 0xC3 }; // mov al, 1; ret (success)
             feat.patches.push_back(p);
             feat.ready = true;
             snprintf(buf, sizeof(buf), "[SCAN READY] %s found at 0x%llX", feat.name.c_str(),
@@ -636,36 +640,14 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
         feat.ini_key = "CreativeHover";
         feat.name = "Creative Mode Hovering & Flight";
 
-        // Patch A: Bypass falling gravity loop (at 0x41A698)
-        sf_native::Pattern pat_fall = sf_native::parse_pattern(
-            "locomotion.fallSkip",
-            "80 7F 59 02 0F 85 31 01 00 00",
-            4, 6
+        sf_native::Pattern pat_pos = sf_native::parse_pattern(
+            "locomotion.hoverPositionHook",
+            "0F 57 C9 F3 41 0F 58 47 08 F3 41 0F 11 47 08 49 8B 46 58",
+            9, 6
         );
-        uintptr_t match_fall = sf_native::scan_pattern(base_addr, module_size, pat_fall);
-        if (match_fall) {
-            sf_native::MemoryPatch p_fall;
-            p_fall.name = "Locomotion Fall Skip";
-            p_fall.target_address = match_fall + pat_fall.patch_offset;
-            // jmp +0x132 (E9 32 01 00 00) + 1x NOP (90) = 6 bytes
-            p_fall.patch_bytes = { 0xE9, 0x32, 0x01, 0x00, 0x00, 0x90 };
-            feat.patches.push_back(p_fall);
-            snprintf(buf, sizeof(buf), "[SCAN READY] %s (Fall Skip) found at 0x%llX", feat.name.c_str(),
-                     static_cast<unsigned long long>(p_fall.target_address));
-            log_message(buf);
-        } else {
-            log_message("[WARNING] locomotion.fallSkip pattern not found.");
-        }
-
-        // Patch B: Intercept and control vertical velocity (at 0x41AAA1)
-        sf_native::Pattern pat_vel = sf_native::parse_pattern(
-            "locomotion.hoverVelocityHook",
-            "F3 41 0F 58 4F 04 F3 41 0F 11 07 F3 0F 10 44 24 40 F3 41 0F 11 4F 04",
-            17, 6
-        );
-        uintptr_t match_vel = sf_native::scan_pattern(base_addr, module_size, pat_vel);
-        if (match_vel) {
-            uintptr_t target_addr = match_vel + pat_vel.patch_offset;
+        uintptr_t match_pos = sf_native::scan_pattern(base_addr, module_size, pat_pos);
+        if (match_pos) {
+            uintptr_t target_addr = match_pos + pat_pos.patch_offset;
             if (!g_hover_trampoline) {
                 g_hover_trampoline = allocate_page_near(target_addr);
                 if (g_hover_trampoline) {
@@ -681,12 +663,12 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
             }
 
             if (g_hover_trampoline) {
-                sf_native::MemoryPatch p_vel;
-                p_vel.name = "Locomotion Hover Velocity Hook";
-                p_vel.target_address = target_addr;
+                sf_native::MemoryPatch p_pos;
+                p_pos.name = "Locomotion Hover Position Hook";
+                p_pos.target_address = target_addr;
 
                 int32_t disp = static_cast<int32_t>(reinterpret_cast<uintptr_t>(g_hover_trampoline) - (target_addr + 5));
-                p_vel.patch_bytes = {
+                p_pos.patch_bytes = {
                     0xE8,
                     static_cast<uint8_t>(disp & 0xFF),
                     static_cast<uint8_t>((disp >> 8) & 0xFF),
@@ -694,13 +676,13 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
                     static_cast<uint8_t>((disp >> 24) & 0xFF),
                     0x90 // 1x NOP to pad to 6 bytes
                 };
-                feat.patches.push_back(p_vel);
-                snprintf(buf, sizeof(buf), "[SCAN READY] %s (Velocity Hook) found at 0x%llX", feat.name.c_str(),
+                feat.patches.push_back(p_pos);
+                snprintf(buf, sizeof(buf), "[SCAN READY] %s found at 0x%llX", feat.name.c_str(),
                          static_cast<unsigned long long>(target_addr));
                 log_message(buf);
             }
         } else {
-            log_message("[WARNING] locomotion.hoverVelocityHook pattern not found.");
+            log_message("[WARNING] locomotion.hoverPositionHook pattern not found.");
         }
 
         if (!feat.patches.empty()) {
@@ -720,10 +702,10 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
 
         if (has_json) {
             g_hover_speed_multiplier.store(parse_json_int_setting(json_content, "hoverSpeed", 100));
-            std::string up_key = parse_json_string_setting(json_content, "hoverAscendKey", "Space");
-            std::string down_key = parse_json_string_setting(json_content, "hoverDescendKey", "C");
-            g_hover_ascend_vk.store(resolve_vk(up_key, VK_SPACE));
-            g_hover_descend_vk.store(resolve_vk(down_key, 'C'));
+            std::string up_key = parse_json_string_setting(json_content, "hoverAscendKey", "R");
+            std::string down_key = parse_json_string_setting(json_content, "hoverDescendKey", "F");
+            g_hover_ascend_vk.store(resolve_vk(up_key, 'R'));
+            g_hover_descend_vk.store(resolve_vk(down_key, 'F'));
         }
 
         for (auto& feat : g_features) {

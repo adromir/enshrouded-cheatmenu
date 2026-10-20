@@ -8,7 +8,7 @@
     "Adromir"
   ],
   "license": "MIT",
-  "icon": "icon.svg",
+  "icon": null,
   "dependencies": [],
   "capabilities": [
     "patch"

@@ -30,7 +30,7 @@ Pure live in-game cheat menu operating dynamically via ECS attributes, `GameSett
 | **Infinite Gliding** | Checkbox | Off | Eliminates glider stamina consumption for indefinite flight across the map. |
 | **No Fall Damage** | Checkbox | Off | Intercepts engine fall damage calculations (`fallDamage.infliction`). Immune to lethal falls from any height. |
 | **Infinite Air-Jump / Multi-Jump** | Checkbox | Off | Bypasses the double-jump limit (`locomotion.airJumpGate` & counter reset). Unlimited jumps mid-air to ascend or fly. |
-| **Creative Mode Hovering & Vertical Flight** | Checkbox | Off | Freezes vertical gravity degradation mid-air (`locomotion.fallSkip`) and enables smooth vertical ascent/descent. **Hotkey: Ctrl+H** (Space to ascend, C to descend). |
+| **Creative Mode Hovering & Vertical Flight** | Checkbox | Off | Freezes vertical altitude mid-air (`locomotion.hoverPositionHook`) and enables smooth vertical ascent/descent. **Hotkey: Ctrl+H** (R to ascend, F to descend). |
 | **Hover Speed Multiplier %** | Slider (50%–500%) | 100% | Adjusts vertical ascent and descent flight speed. |
 
 ### 2. Player Attributes & God Mode

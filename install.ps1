@@ -189,7 +189,7 @@ function Find-EnshroudedDirectory {
 
     # 3. Current Working Directory
     $cwd = (Get-Location).Path
-    if (Test-Path (Join-Path $cwd "enshrouded.exe") -or Test-Path (Join-Path $cwd "enshrouded_server.exe")) {
+    if ((Test-Path (Join-Path $cwd "enshrouded.exe")) -or (Test-Path (Join-Path $cwd "enshrouded_server.exe"))) {
         return $cwd
     }
 
@@ -306,6 +306,12 @@ Usage:
   irm https://raw.githubusercontent.com/adromir/enshrouded-cheatmenu/main/install.ps1 | iex
 "@ -ForegroundColor Yellow
     exit 1
+}
+
+$runningProc = Get-Process enshrouded, enshrouded_server -ErrorAction SilentlyContinue
+if ($runningProc) {
+    Write-Warn "Enshrouded is currently running (PID: $($runningProc.Id -join ', '))."
+    Write-Warn "Please close the game before running prepare, so DLLs and KFC files can be updated."
 }
 
 Write-Success "Target Enshrouded Directory: $installDir"

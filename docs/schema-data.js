@@ -45,7 +45,7 @@ window.MOD_CONFIGS = {
     "creativeHover": {
       "value": false,
       "label": "Creative Mode Hovering / Flight (Personal & Native)",
-      "description": "Allows floating stationary in mid-air and flying vertically without falling (Space to ascend, C to descend, or Ctrl+H to toggle).",
+      "description": "Allows floating stationary in mid-air and flying vertically without falling (R to ascend, F to descend, or Ctrl+H to toggle).",
       "control": "checkbox"
     },
     "hoverSpeed": {
@@ -362,7 +362,7 @@ window.MOD_CONFIGS = {
   },
   "flight_explorer": {
     "name": "🕊️ Creative Flight & Explorer",
-    "desc": "Infinite Gliding, No Fall Damage, Unlimited Air Jump, and Creative Hovering (Space to ascend, C to descend, Ctrl+H to toggle).",
+    "desc": "Infinite Gliding, No Fall Damage, Unlimited Air Jump, and Creative Hovering (R to ascend, F to descend, Ctrl+H to toggle).",
     "values": {
       "unlimitedGliding": true,
       "noFallDamage": true,
