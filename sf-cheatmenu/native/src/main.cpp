@@ -407,59 +407,7 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
         g_features.push_back(feat);
     }
 
-    // 2. Infinite Air-Jump Hook
-    {
-        FeatureHook feat;
-        feat.key = "infiniteAirJump";
-        feat.ini_key = "InfiniteAirJump";
-        feat.name = "Infinite Air-Jump / Multi-Jump";
-
-        sf_native::Pattern pat1 = sf_native::parse_pattern(
-            "locomotion.airJumpGate",
-            "48 3B C1 48 0F 44 DA 80 BE 55 01 00 00 01 0F 87",
-            7, 13
-        );
-        uintptr_t match1 = sf_native::scan_pattern(base_addr, module_size, pat1);
-        if (match1) {
-            sf_native::MemoryPatch p1;
-            p1.name = "Air Jump Reset & Gate Bypass";
-            p1.target_address = match1 + pat1.patch_offset;
-            // mov byte ptr [rsi+0x155], 0 (7 bytes) + 6x NOP (6 bytes) = 13 bytes
-            p1.patch_bytes = { 0xC6, 0x86, 0x55, 0x01, 0x00, 0x00, 0x00, 0x90, 0x90, 0x90, 0x90, 0x90, 0x90 };
-            feat.patches.push_back(p1);
-            snprintf(buf, sizeof(buf), "[SCAN READY] %s (Gate 1) found at 0x%llX", feat.name.c_str(),
-                     static_cast<unsigned long long>(p1.target_address));
-            log_message(buf);
-        } else {
-            log_message("[WARNING] locomotion.airJumpGate pattern not found.");
-        }
-
-        sf_native::Pattern pat2 = sf_native::parse_pattern(
-            "locomotion.airJumpCounterGate",
-            "49 8D BF 38 02 00 00 48 8B CF E8 ?? ?? ?? ?? 44 38 A8 55 01 00 00 76",
-            22, 2
-        );
-        uintptr_t match2 = sf_native::scan_pattern(base_addr, module_size, pat2);
-        if (match2) {
-            sf_native::MemoryPatch p2;
-            p2.name = "Air Jump Counter Gate Bypass";
-            p2.target_address = match2 + pat2.patch_offset;
-            p2.patch_bytes = { 0x90, 0x90 }; // 2x NOP to allow unlimited jumps
-            feat.patches.push_back(p2);
-            snprintf(buf, sizeof(buf), "[SCAN READY] %s (Gate 2) found at 0x%llX", feat.name.c_str(),
-                     static_cast<unsigned long long>(p2.target_address));
-            log_message(buf);
-        } else {
-            log_message("[WARNING] locomotion.airJumpCounterGate pattern not found.");
-        }
-
-        if (!feat.patches.empty()) {
-            feat.ready = true;
-        }
-        g_features.push_back(feat);
-    }
-
-    // 3. Infinite Shroud / Shroud Freezer Hook
+    // 2. Infinite Shroud / Shroud Freezer Hook
     {
         FeatureHook feat;
         feat.key = "infiniteShroud";
@@ -501,106 +449,62 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
         g_features.push_back(feat);
     }
 
-    // 4. Infinite Item Durability Hook
-    {
-        FeatureHook feat;
-        feat.key = "infiniteDurability";
-        feat.ini_key = "InfiniteDurability";
-        feat.name = "Infinite Item Durability (Native)";
 
-        sf_native::Pattern loss_pat = sf_native::parse_pattern(
-            "durability.lossFunction",
-            "48 89 4C 24 08 55 48 8D 6C 24 A9 48 81 EC F0 00 00 00 41 B8 50 00 00 00",
-            0, 3
-        );
-        uintptr_t match_loss = sf_native::scan_pattern(base_addr, module_size, loss_pat);
-        if (match_loss) {
-            sf_native::MemoryPatch p;
-            p.name = "Durability Loss Hook";
-            p.target_address = match_loss;
-            p.patch_bytes = { 0x31, 0xC0, 0xC3 }; // xor eax, eax; ret
-            feat.patches.push_back(p);
-        }
-
-        sf_native::Pattern burn_pat = sf_native::parse_pattern(
-            "durability.burndownFunction",
-            "40 55 53 56 41 56 41 57 48 8D 6C 24 90 48 81 EC 70 01 00 00 41 B8 D8 00 00 00",
-            0, 3
-        );
-        uintptr_t match_burn = sf_native::scan_pattern(base_addr, module_size, burn_pat);
-        if (match_burn) {
-            sf_native::MemoryPatch p;
-            p.name = "Durability Burndown Hook";
-            p.target_address = match_burn;
-            p.patch_bytes = { 0x31, 0xC0, 0xC3 }; // xor eax, eax; ret
-            feat.patches.push_back(p);
-        }
-
-        if (!feat.patches.empty()) {
-            feat.ready = true;
-            snprintf(buf, sizeof(buf), "[SCAN READY] %s registered with %zu patch targets",
-                     feat.name.c_str(), feat.patches.size());
-            log_message(buf);
-        } else {
-            log_message("[WARNING] Durability loss/burndown patterns not found.");
-        }
-        g_features.push_back(feat);
-    }
-
-    // 5. Native No Fall Damage Hook
-    {
-        FeatureHook feat;
-        feat.key = "noFallDamage";
-        feat.ini_key = "NoFallDamage";
-        feat.name = "No Fall Damage (Native)";
-
-        sf_native::Pattern pat = sf_native::parse_pattern(
-            "fallDamage.infliction",
-            "CF 4C 03 C3 45 89 0C 88 48 8B CB",
-            4, 4
-        );
-        uintptr_t match = sf_native::scan_pattern(base_addr, module_size, pat);
-        if (match) {
-            sf_native::MemoryPatch p;
-            p.name = feat.name;
-            p.target_address = match + pat.patch_offset;
-            p.patch_bytes = { 0x90, 0x90, 0x90, 0x90 }; // 4x NOP
-            feat.patches.push_back(p);
-            feat.ready = true;
-            snprintf(buf, sizeof(buf), "[SCAN READY] %s found at 0x%llX", feat.name.c_str(),
-                     static_cast<unsigned long long>(p.target_address));
-            log_message(buf);
-        } else {
-            log_message("[WARNING] fallDamage.infliction pattern not found.");
-        }
-        g_features.push_back(feat);
-    }
-
-    // 6. Free Crafting & Building Hook
+    // 6. Free Crafting & Building Hook (Native)
     {
         FeatureHook feat;
         feat.key = "freeCrafting";
         feat.ini_key = "FreeCrafting";
         feat.name = "Free Crafting & Building (Native)";
 
-        sf_native::Pattern pat = sf_native::parse_pattern(
+        // Target 1: actor.payUsageCost (legacy usage cost)
+        sf_native::Pattern pat_usage = sf_native::parse_pattern(
             "actor.payUsageCost",
             "40 55 57 48 8D AC 24 B8 FE FF FF 48 81 EC 48 02 00 00 41 B8 40 01 00 00",
             0, 3
         );
-        uintptr_t match = sf_native::scan_pattern(base_addr, module_size, pat);
-        if (match) {
+        uintptr_t m_usage = sf_native::scan_pattern(base_addr, module_size, pat_usage);
+        if (m_usage) {
             sf_native::MemoryPatch p;
-            p.name = feat.name;
-            p.target_address = match;
+            p.name = "actor.payUsageCost";
+            p.target_address = m_usage;
             p.patch_bytes = { 0xB0, 0x01, 0xC3 }; // mov al, 1; ret (success)
             feat.patches.push_back(p);
-            feat.ready = true;
-            snprintf(buf, sizeof(buf), "[SCAN READY] %s found at 0x%llX", feat.name.c_str(),
-                     static_cast<unsigned long long>(match));
+            snprintf(buf, sizeof(buf), "[SCAN READY] %s (payUsageCost) found at 0x%llX", feat.name.c_str(),
+                     static_cast<unsigned long long>(m_usage));
             log_message(buf);
         } else {
             log_message("[WARNING] actor.payUsageCost pattern not found.");
+        }
+
+        // Target 2: inventory.checkRequirements (bypasses missing blocks / items check in hammer building & crafting)
+        sf_native::Pattern pat_check = sf_native::parse_pattern(
+            "inventory.checkRequirements",
+            "48 89 5C 24 08 48 89 74 24 18 48 89 7C 24 20 48 89 54 24 10 55 41 54 41 55 41 56 41 57 48 8D AC 24 20",
+            0, 19
+        );
+        uintptr_t m_check = sf_native::scan_pattern(base_addr, module_size, pat_check);
+        if (m_check) {
+            sf_native::MemoryPatch p;
+            p.name = "inventory.checkRequirements";
+            p.target_address = m_check;
+            // mov qword ptr [rcx], 0; mov qword ptr [rcx+8], 0; mov rax, rcx; ret
+            p.patch_bytes = {
+                0x48, 0xC7, 0x01, 0x00, 0x00, 0x00, 0x00,
+                0x48, 0xC7, 0x41, 0x08, 0x00, 0x00, 0x00, 0x00,
+                0x48, 0x89, 0xC8,
+                0xC3
+            };
+            feat.patches.push_back(p);
+            snprintf(buf, sizeof(buf), "[SCAN READY] %s (checkRequirements) found at 0x%llX", feat.name.c_str(),
+                     static_cast<unsigned long long>(m_check));
+            log_message(buf);
+        } else {
+            log_message("[WARNING] inventory.checkRequirements pattern not found.");
+        }
+
+        if (!feat.patches.empty()) {
+            feat.ready = true;
         }
         g_features.push_back(feat);
     }
@@ -721,7 +625,10 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
             }
 
             if (feat.key == "freeCrafting" && !desired && has_json) {
-                desired = parse_json_bool_setting(json_content, "freeReskill", false);
+                desired = parse_json_bool_setting(json_content, "freeBuilding", false) ||
+                          parse_json_bool_setting(json_content, "freeCrafting", false) ||
+                          parse_json_bool_setting(json_content, "freeRecipeCrafting", false) ||
+                          parse_json_bool_setting(json_content, "freeReskill", false);
             }
 
             sync_feature(feat, desired);

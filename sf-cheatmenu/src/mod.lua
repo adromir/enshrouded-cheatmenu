@@ -58,29 +58,7 @@ local function report(state, detail)
     runtime.report_effect(state, detail)
 end
 
--- Core Player Attributes (verified against original KFC attribute programs)
-local attributes = {
-    {setting = "infiniteStamina", root = "Stamina", field = "Stamina_Min", maximum = "Stamina_Max"},
-    {setting = "infiniteMana", root = "Mana", field = "Mana_Min", maximum = "Mana_Max"},
-    {setting = "infiniteOxygen", root = "Oxygen", field = "Oxygen_Min", maximum = "Oxygen_Max"},
-    {setting = "noHypothermia", root = "BodyHeat", field = "BodyHeat_Min", maximum = "BodyHeat_Max"},
-}
-
-local function attribute_target(feature, snapshot, baseline)
-    if feature.maximum then
-        local maximum = snapshot.values[feature.maximum]
-        if not finite(maximum) or maximum <= 0 then
-            return nil, "A positive original maximum is required"
-        end
-        return maximum
-    end
-    return nil, "Unknown attribute feature"
-end
-
 local function check_enabled(key)
-    if key == "healthRegenMultiplier" then return get_num("healthRegenMultiplier", 1) > 1 end
-    if key == "staminaRegenMultiplier" then return get_num("staminaRegenMultiplier", 1) > 1 end
-    if key == "manaRegenMultiplier" then return get_num("manaRegenMultiplier", 1) > 1 end
     if key == "critChance" then return get_num("critChance", 0) > 0 end
     if key == "critDamageMultiplier" then return get_num("critDamageMultiplier", 100) > 100 end
     if key == "meleeDamageMultiplier" then return get_num("meleeDamageMultiplier", 100) > 100 end
@@ -91,10 +69,8 @@ local function check_enabled(key)
     if key == "productionSpeedMultiplier" then return get_num("productionSpeedMultiplier", 1) > 1 end
     if key == "plantGrowthMultiplier" then return get_num("plantGrowthMultiplier", 1) > 1 end
     if key == "jumpHeightMultiplier" then return get_num("jumpHeightMultiplier", 100) > 100 end
-
     -- Aliases for multi-target settings
     if key:find("^infiniteHealth") then return enabled("infiniteHealth") end
-    if key:find("^infiniteStamina") then return enabled("infiniteStamina") end
     if key:find("^infiniteShroud") then return enabled("infiniteShroud") or get_num("shroudTimeMultiplier", 1) > 1 end
     if key:find("^oneHitKill") then return enabled("oneHitKill") end
     if key:find("^freeSkillTree") then return enabled("freeSkillTree") or enabled("freeCrafting") end
@@ -106,29 +82,18 @@ end
 
 local function any_feature_active()
     return enabled("infiniteHealth")
-        or get_num("healthRegenMultiplier", 1) > 1
-        or enabled("infiniteStamina")
-        or get_num("staminaRegenMultiplier", 1) > 1
         or get_num("jumpHeightMultiplier", 100) > 100
-        or enabled("infiniteMana")
-        or get_num("manaRegenMultiplier", 1) > 1
-        or enabled("noFallDamage")
         or enabled("creativeHover")
-        or enabled("unlimitedGliding")
-        or enabled("noHypothermia")
-        or enabled("infiniteOxygen")
         or enabled("oneHitKill")
         or get_num("critChance", 0) > 0
         or get_num("critDamageMultiplier", 100) > 100
         or get_num("meleeDamageMultiplier", 100) > 100
         or get_num("rangedDamageMultiplier", 100) > 100
         or get_num("magicDamageMultiplier", 100) > 100
-        or enabled("infiniteDurability")
         or enabled("freeCrafting")
         or enabled("freeSkillTree")
         or enabled("freeReskill")
         or enabled("infiniteArrows")
-        or enabled("infiniteAirJump")
         or enabled("infiniteShroud")
         or enabled("infiniteConsumables")
         or get_num("itemAmountMultiplier", 1) > 1
@@ -167,17 +132,7 @@ local function update(delta_seconds)
     -- =========================================================================
     local game_settings = runtime.services and runtime.services.get("ecs::GameSettings")
     if game_settings then
-        -- 1. Infinite Item Durability (World)
-        if enabled("infiniteDurability") then
-            local target, failure = runtime.overrides.service(game_settings, "enableDurability")
-            if target then
-                overrides:apply(target.key, "infiniteDurability", target, function() return false end)
-            else
-                overrides:waiting("Infinite Durability: " .. tostring(failure))
-            end
-        end
-
-        -- 2. God Mode / Incoming Damage Factors (World/Server)
+        -- 1. God Mode / Incoming Damage Factors (World/Server)
         if enabled("infiniteHealth") then
             local t_enemy = runtime.overrides.service(game_settings, "enemyDamageFactor")
             if t_enemy then
@@ -190,14 +145,6 @@ local function update(delta_seconds)
             local t_hp = runtime.overrides.service(game_settings, "playerHealthFactor")
             if t_hp then
                 overrides:apply(t_hp.key, "infiniteHealth_playerHp", t_hp, function() return 10.0 end)
-            end
-        end
-
-        -- 3. Infinite Stamina (World/Server Multiplier)
-        if enabled("infiniteStamina") then
-            local t_stam = runtime.overrides.service(game_settings, "playerStaminaFactor")
-            if t_stam then
-                overrides:apply(t_stam.key, "infiniteStamina_factor", t_stam, function() return 100.0 end)
             end
         end
 
@@ -321,60 +268,12 @@ local function update(delta_seconds)
     local players, p_why = runtime.ecs.query("keen::ecs::PlayerInput")
     if players and #players > 0 then
         for _, player_entity in ipairs(players) do
-            -- 1. Bound Attributes (Mana, Stamina, Oxygen, BodyHeat)
-            for _, feature in ipairs(attributes) do
-                if enabled(feature.setting) then
-                    local target, failure = runtime.overrides.attribute(player_entity, feature.field)
-                    if target then
-                        overrides:apply(target.key, feature.setting, target, function(snapshot, baseline)
-                            return attribute_target(feature, snapshot, baseline)
-                        end)
-                    else
-                        overrides:waiting(feature.setting .. ": " .. tostring(failure))
-                    end
-                end
-            end
-
-            -- 2. Fast Health Regen / God Mode Regeneration
-            local hp_regen_mult = get_num("healthRegenMultiplier", 1)
-            if enabled("infiniteHealth") or hp_regen_mult > 1 then
-                local setting_key = enabled("infiniteHealth") and "infiniteHealth_recharge" or "healthRegenMultiplier"
-                local mult = enabled("infiniteHealth") and 100 or hp_regen_mult
+            -- 1. God Mode Health Regeneration
+            if enabled("infiniteHealth") then
                 local target, failure = runtime.overrides.attribute(player_entity, "Health_Recharge")
                 if target then
-                    overrides:apply(target.key, setting_key, target, function(_, baseline)
-                        if baseline <= 0 then
-                            return enabled("infiniteHealth") and 1000 or nil, "No natural health regen active"
-                        end
-                        return math.min(baseline * mult, 65536)
-                    end)
-                end
-            end
-
-            -- 3. Fast Stamina Regen & Infinite Stamina boost
-            local stam_regen_mult = get_num("staminaRegenMultiplier", 1)
-            if enabled("infiniteStamina") or stam_regen_mult > 1 then
-                local setting_key = enabled("infiniteStamina") and "infiniteStamina_recharge" or "staminaRegenMultiplier"
-                local mult = enabled("infiniteStamina") and 500 or stam_regen_mult
-                local target = runtime.overrides.attribute(player_entity, "Stamina_Recharge")
-                if target then
-                    overrides:apply(target.key, setting_key, target, function(_, baseline)
-                        if baseline <= 0 then
-                            return enabled("infiniteStamina") and 1000 or nil, "No natural stamina regen active"
-                        end
-                        return math.min(baseline * mult, 65536)
-                    end)
-                end
-            end
-
-            -- 4. Fast Mana Regen
-            local mana_regen_mult = get_num("manaRegenMultiplier", 1)
-            if mana_regen_mult > 1 then
-                local target = runtime.overrides.attribute(player_entity, "Mana_Recharge")
-                if target then
-                    overrides:apply(target.key, "manaRegenMultiplier", target, function(_, baseline)
-                        if baseline <= 0 then return nil, "No natural mana regen active" end
-                        return math.min(baseline * mana_regen_mult, 65536)
+                    overrides:apply(target.key, "infiniteHealth_recharge", target, function(_, baseline)
+                        return 65536
                     end)
                 end
             end

@@ -13,5 +13,7 @@ sf-cheatmenu/native/proxy/*.dll
 sf-cheatmenu/native/proxy/*.obj
 sf-cheatmenu/native/proxy/*.exp
 sf-cheatmenu/native/proxy/*.lib
+sf-cheatmenu/*.dll
+*.dll
 
 

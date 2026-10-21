@@ -24,7 +24,8 @@ try {
         Write-Error "Compilation of sf-native.dll failed."
         exit $LASTEXITCODE
     }
-    Write-Host "Successfully compiled $OutNative!" -ForegroundColor Green
+    Copy-Item $OutNative -Destination "..\sf-native.dll" -Force
+    Write-Host "Copied $OutNative to sf-cheatmenu root." -ForegroundColor Cyan
 
     Write-Host "Compiling proxy powrprof.dll using $ClangBin..."
     $ProxySrc = "proxy/powrprof.cpp"
@@ -37,6 +38,21 @@ try {
         exit $LASTEXITCODE
     }
     Write-Host "Successfully compiled $OutProxy!" -ForegroundColor Green
+
+    $gameRoot = "D:\SteamLibrary\steamapps\common\Enshrouded"
+    if (Test-Path $gameRoot) {
+        Copy-Item $OutProxy -Destination (Join-Path $gameRoot "powrprof.dll") -Force
+        Write-Host "Deployed $OutProxy directly to Enshrouded game root!" -ForegroundColor Green
+
+        $gameModDir = Join-Path $gameRoot "mods\sf-cheatmenu"
+        if (Test-Path $gameModDir) {
+            Copy-Item $OutNative -Destination (Join-Path $gameModDir "sf-native.dll") -Force
+            if (Test-Path (Join-Path $gameModDir "native")) {
+                Copy-Item $OutNative -Destination (Join-Path $gameModDir "native\sf-native.dll") -Force
+            }
+            Write-Host "Deployed $OutNative directly to Enshrouded sf-cheatmenu mods directory!" -ForegroundColor Green
+        }
+    }
 }
 finally {
     Pop-Location

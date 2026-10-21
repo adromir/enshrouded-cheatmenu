@@ -14,24 +14,6 @@
     "v0.0.1: Pure live runtime cheat menu with 33 dynamic features and C++ native sidecar. Instant F9 toggling with zero restart requirements."
   ],
   "settings": {
-    "unlimitedGliding": {
-      "value": true,
-      "label": "Infinite Gliding (Unlimited Flight)",
-      "description": "Disables glider stamina drain for unlimited glider flight.",
-      "control": "checkbox"
-    },
-    "noFallDamage": {
-      "value": true,
-      "label": "No Fall Damage (Personal & Native)",
-      "description": "Eliminates all fall damage regardless of height.",
-      "control": "checkbox"
-    },
-    "infiniteAirJump": {
-      "value": true,
-      "label": "Infinite Air-Jump / Multi-Jump (Native)",
-      "description": "Bypasses double-jump limit. Allows unlimited mid-air jumps to ascend or fly.",
-      "control": "checkbox"
-    },
     "creativeHover": {
       "value": false,
       "label": "Creative Mode Hovering / Flight (Personal & Native)",
@@ -51,57 +33,6 @@
       "value": true,
       "label": "Infinite Health / God Mode (Personal)",
       "description": "Clamps Health_Min to Health_Max and zeroes incoming damage factors. You become immune to lethal damage.",
-      "control": "checkbox"
-    },
-    "healthRegenMultiplier": {
-      "value": 1,
-      "label": "Health Regen Multiplier (Personal)",
-      "description": "Multiplies natural health regeneration rate for your character (1x = standard, up to 500x).",
-      "control": "slider",
-      "min": 1,
-      "max": 500,
-      "step": 5
-    },
-    "infiniteStamina": {
-      "value": true,
-      "label": "Infinite Stamina (Personal)",
-      "description": "Locks stamina at maximum. Disables stamina drain for sprinting, fighting, and climbing.",
-      "control": "checkbox"
-    },
-    "staminaRegenMultiplier": {
-      "value": 1,
-      "label": "Stamina Regen Multiplier (Personal)",
-      "description": "Multiplies natural stamina regeneration rate (1x = standard, up to 500x).",
-      "control": "slider",
-      "min": 1,
-      "max": 500,
-      "step": 5
-    },
-    "infiniteMana": {
-      "value": true,
-      "label": "Infinite Mana (Personal)",
-      "description": "Locks mana at maximum. Spells and abilities consume zero mana.",
-      "control": "checkbox"
-    },
-    "manaRegenMultiplier": {
-      "value": 1,
-      "label": "Mana Regen Multiplier (Personal)",
-      "description": "Multiplies natural mana regeneration rate (1x = standard, up to 500x).",
-      "control": "slider",
-      "min": 1,
-      "max": 500,
-      "step": 5
-    },
-    "noHypothermia": {
-      "value": true,
-      "label": "No Hypothermia / Cold Immunity (Personal)",
-      "description": "Maintains body heat at maximum; eliminates freezing in cold or snowy biomes.",
-      "control": "checkbox"
-    },
-    "infiniteOxygen": {
-      "value": true,
-      "label": "Infinite Oxygen / Diving Breath (Personal)",
-      "description": "Maintains oxygen reserve at maximum; prevents drowning while diving.",
       "control": "checkbox"
     },
     "infiniteConsumables": {
@@ -179,16 +110,10 @@
       "description": "Bypasses arrow consumption when shooting bows. Arrows in quiver never decrease.",
       "control": "checkbox"
     },
-    "infiniteDurability": {
-      "value": true,
-      "label": "Infinite Item Durability (World & Native)",
-      "description": "Disables durability loss for all weapons, tools, and armor world-wide.",
-      "control": "checkbox"
-    },
     "freeCrafting": {
       "value": true,
-      "label": "Free Building & Crafting (Hammer & Workbenches) (Native & Server)",
-      "description": "Allows placing building blocks with the construction hammer and crafting items at workbenches with zero resource costs.",
+      "label": "Free Building (Construction Hammer) & Skill Perks (Native)",
+      "description": "Allows placing building blocks with the construction hammer and crafting without material checks or item consumption (native memory bypass for inventory requirements and deduction). For free prop/furniture placement and asset recipes, see sf-cheatmenu-assets.",
       "control": "checkbox"
     },
     "unlockAllBlueprints": {
@@ -258,27 +183,17 @@
   "groups": [
     {
       "label": "Movement & Flight Cheats",
-      "description": "Instant runtime flight, no fall damage, infinite air jump, and creative hover.",
+      "description": "Creative hovering and vertical flight controls.",
       "settings": [
-        "unlimitedGliding",
-        "noFallDamage",
-        "infiniteAirJump",
         "creativeHover",
         "hoverSpeed"
       ]
     },
     {
       "label": "Player Attributes & God Mode",
-      "description": "Invulnerability, unlimited stamina, mana, oxygen, temperature, consumables, and shroud fog immunity.",
+      "description": "Invulnerability (God Mode), infinite consumables, and shroud fog immunity.",
       "settings": [
         "infiniteHealth",
-        "healthRegenMultiplier",
-        "infiniteStamina",
-        "staminaRegenMultiplier",
-        "infiniteMana",
-        "manaRegenMultiplier",
-        "noHypothermia",
-        "infiniteOxygen",
         "infiniteConsumables",
         "infiniteShroud"
       ]
@@ -298,10 +213,9 @@
       ]
     },
     {
-      "label": "World Rules, Crafting & Durability",
-      "description": "Unbreakable gear durability, free bench crafting, blueprint unlocking, free reskill, and item drops.",
+      "label": "World Rules & Free Crafting",
+      "description": "Free bench crafting, blueprint unlocking, free reskill, and item drops.",
       "settings": [
-        "infiniteDurability",
         "freeCrafting",
         "unlockAllBlueprints",
         "freeReskill",

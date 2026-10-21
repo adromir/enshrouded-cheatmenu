@@ -27,9 +27,6 @@ Pure live in-game cheat menu operating dynamically via ECS attributes, `GameSett
 ### 1. Movement & Flight Cheats
 | Feature | Control | Default | Technical Details |
 |---|---|---|---|
-| **Infinite Gliding** | Checkbox | Off | Eliminates glider stamina consumption for indefinite flight across the map. |
-| **No Fall Damage** | Checkbox | Off | Intercepts engine fall damage calculations (`fallDamage.infliction`). Immune to lethal falls from any height. |
-| **Infinite Air-Jump / Multi-Jump** | Checkbox | Off | Bypasses the double-jump limit (`locomotion.airJumpGate` & counter reset). Unlimited jumps mid-air to ascend or fly. |
 | **Creative Mode Hovering & Vertical Flight** | Checkbox | Off | Freezes vertical altitude mid-air (`locomotion.hoverPositionHook`) and enables smooth vertical ascent/descent. **Hotkey: Ctrl+H** (R to ascend, F to descend). |
 | **Hover Speed Multiplier %** | Slider (50%–500%) | 100% | Adjusts vertical ascent and descent flight speed. |
 
@@ -37,13 +34,6 @@ Pure live in-game cheat menu operating dynamically via ECS attributes, `GameSett
 | Feature | Control | Default | Technical Details |
 |---|---|---|---|
 | **Infinite Health (God Mode)** | Checkbox | Off | Clamps `Health_Min` to `Health_Max` and zeroes incoming enemy/boss damage factors in `GameSettings`. Total invincibility. |
-| **Health Regen Multiplier** | Slider (1x–500x) | 1x | Scales `Health_Recharge` attribute up to the engine clamp (65,536). |
-| **Infinite Stamina** | Checkbox | Off | Locks `Stamina_Min` to maximum; completely disables stamina drain for sprinting, fighting, and climbing. |
-| **Stamina Regen Multiplier** | Slider (1x–500x) | 1x | Multiplies natural stamina regeneration rate up to 65,536. |
-| **Infinite Mana** | Checkbox | Off | Locks `Mana_Min` to maximum; spells, wands, and magical abilities consume zero mana. |
-| **Mana Regen Multiplier** | Slider (1x–500x) | 1x | Multiplies natural mana recovery rate up to 65,536. |
-| **Cold Immunity / No Hypothermia** | Checkbox | Off | Clamps `BodyHeat_Min` to `BodyHeat_Max`; eliminates freezing damage in snowy and mountain biomes. |
-| **Infinite Oxygen / Diving Breath** | Checkbox | Off | Clamps `Oxygen_Min` to `Oxygen_Max`; unlimited underwater breathing without drowning. |
 | **Infinite Consumables** | Checkbox | Off | Bypasses `consumables.usedRemoval`; potions, bandages, and food are never depleted upon consumption. |
 | **Infinite Shroud Fog Timer** | Checkbox | Off | Bypasses engine fog checks (`debug_god_mode_fogresistance`) and sets `shroudTimeFactor = 10000.0`. Shroud time never decreases. |
 
@@ -59,11 +49,10 @@ Pure live in-game cheat menu operating dynamically via ECS attributes, `GameSett
 | **Rapid Bow Draw Speed** | Checkbox | Off | Reduces bow draw duration in weapon definitions by 80% for rapid-fire archery. |
 | **Infinite Arrows** | Checkbox | Off | Patches `consumables.firedRemoval` (+0x2208FD); zero arrows deducted from quiver when firing any bow. |
 
-### 4. World Rules, Crafting & Durability (Server Authoritative)
+### 4. World Rules & Free Crafting (Server Authoritative)
 | Feature | Control | Default | Technical Details |
 |---|---|---|---|
-| **Infinite Item Durability** | Checkbox | Off | Sets `enableDurability = false` in `ecs::GameSettings` and patches `durability_loss`. Weapons, pickaxes, and armor never break. |
-| **Free Crafting & Building** | Checkbox | Off | Patches native `actor.payUsageCost` (+0x223440) and zeroes recipe inputs. Build with the hammer or craft without materials. |
+| **Free Crafting & Building (Native)** | Checkbox | On | Native memory bypass for inventory requirements (`checkRequirements` at +0x40A080) and item deduction (`commitDeduction` at +0x408B50). Build with the Construction Hammer and craft anywhere with zero item requirements or block consumption. |
 | **Unlock All Blueprints** | Checkbox | Off | Unlocks all hidden crafting blueprints and station recipes safely without recipe corruption. |
 | **Free Reskill** | Checkbox | Off | Sets respec perk costs to 0; reset your skill tree freely at any Flame Altar. |
 | **Resource Drop Multiplier** | Slider (1x–100x) | 1x | Multiplies harvest, mining, and enemy drop quantities via `resourceDropStackAmountFactor`. |
@@ -92,6 +81,9 @@ Dedicated pregame asset patcher (`capabilities: ["patch"]`) compiled during star
 | **Jump Height Multiplier %** | Slider (100%–500%) | 100% | Multiplies vertical jump launch height on `keen::ecs::JumpParameters.jumpHeight`. |
 | **Flame Altar Build Radius %** | Slider (100%–1000%) | 100% | Expands base protection zone in `BalancingTable.buildzoneSizesPerAltarLevel` up to 320m. |
 | **Unlimited Flame Altars Placement** | Checkbox | On | Sets `altarsPerFlameLevel = 255` and clears `requiresAltarSlot` from Flame Altar items. Build unlimited bases. |
+| **Free Flame & Altar Upgrades** | Checkbox | On | Sets all ingredient requirements to 0 for Strengthening the Flame (all 10 levels) and Upgrading Flame Altars. Upgrade without Sparks or Shroud Cores. |
+| **Free Building & Object Placement** | Checkbox | On | Sets `placementConsume = false` across all placeable items, furniture, chests, altars, workbenches, and props (unlimited placement without consuming items), and zeroes building block crafting ingredients. |
+| **Free Workbench & Hand Crafting** | Checkbox | On | Sets all ingredient requirements to 0 for recipes across workbenches, stations, and hand crafting. |
 | **Comfort & Rested Buff Multiplier** | Slider (1x–100x) | 1x | Multiplies `comfortSetup.base` and `factor` in `BalancingTable` for hours of shelter rested buff. |
 | **Extended Base Shroud Timer** | Slider (1x–100x) | 1x | Extends authoritative `playerBaseFogResistance` in `BalancingTable` (1x = 90s, up to ~2.5 hours). |
 | **Terraform Rake Everywhere** | Checkbox | Off | Clears `buildZoneRequired` and placement restrictions on rakes. Level terrain anywhere in the world. |
@@ -121,7 +113,7 @@ enshrouded-cheatmenu/
 │       └── native-plugin.ini    <-- ShroudForge native plugin definition
 ├── sf-cheatmenu-assets/         <-- Package 2: Static KFC World & Inventory Patches
 │   ├── mod.json                 <-- ShroudForge manifest (capabilities: ["patch"])
-│   ├── extended.mod.json        <-- 13 static asset patches (stacks, chests, altars, slope)
+│   ├── extended.mod.json        <-- 15 static asset patches (stacks, chests, altars, slope)
 │   ├── icon.svg                 <-- Asset mod icon
 │   └── src/
 │       └── mod.lua              <-- Pregame asset pass (Template & BalancingTable mutations)

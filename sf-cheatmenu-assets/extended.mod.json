@@ -53,6 +53,18 @@
       "description": "Sets maximum active Flame Altars per flame level to 255 and removes placement slot requirements. Place unlimited bases across the map.",
       "control": "checkbox"
     },
+    "freeFlameUpgrades": {
+      "value": true,
+      "label": "Free Strengthen the Flame & Altar Upgrades",
+      "description": "Sets all material and item requirements to 0 for Strengthening the Flame (all levels) and Upgrading Flame Altars. Upgrade both for free without Sparks or Shroud Cores. Requires launcher preparation / restart.",
+      "control": "checkbox"
+    },
+    "freeBuilding": {
+      "value": true,
+      "label": "Free Building & Object Placement",
+      "description": "Removes placement item consumption on all furniture, workbenches, chests, altars, and props (unlimited placement), and zeroes material costs for all building blocks, recipes, and construction hammer requirements. Requires launcher preparation / restart.",
+      "control": "checkbox"
+    },
     "comfortBuffMultiplier": {
       "value": 1,
       "label": "Comfort Rested Buff Multiplier",
@@ -73,8 +85,8 @@
     },
     "extraChestSlots": {
       "value": true,
-      "label": "Extra Chest Slots (160 Slots per Storage)",
-      "description": "Expands storage capacity of all crafted storage chests to 160 slots (20 rows). Requires game restart.",
+      "label": "Extra Chest Slots (ChestSlots Integration)",
+      "description": "Expands storage capacity of all storage chests and magical chests using the safe UI-balanced grid expansion from the ChestSlots mod by Johnson1893. Requires launcher preparation / restart.",
       "control": "checkbox"
     },
     "maxStackSize": {
@@ -109,6 +121,21 @@
       "label": "Free Skill Tree Node Perks",
       "description": "Sets skill point costs of all skill tree nodes to 0 and grants bonus SP per level in BalancingTable. Requires game restart.",
       "control": "checkbox"
+    },
+    "freeRecipeCrafting": {
+      "value": true,
+      "label": "Free Workbench & Hand Crafting (Zero Ingredients)",
+      "description": "Sets all ingredient and material requirements to 0 for crafting recipes across workbenches, crafting stations, and hand crafting. Requires launcher preparation / restart.",
+      "control": "checkbox"
+    },
+    "itemAmountMultiplier": {
+      "value": 100,
+      "label": "Resource Drop & Yield Multiplier (KFC Asset Pass)",
+      "description": "Scales item quantities dropped from harvesting (bushes, plants, trees), mining ore veins, world pickups, chests, and enemy loot tables (1x to 100x). Requires launcher preparation / restart.",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
     }
   },
   "groups": [
@@ -123,21 +150,25 @@
     },
     {
       "label": "Base Building & Altar Patches",
-      "description": "Flame Altar radius, placement count, comfort buff, and terraforming tools.",
+      "description": "Flame Altar radius, placement count, free upgrades, free building and prop placement, comfort buff, and terraforming tools.",
       "settings": [
         "altarBuildRadiusMultiplier",
         "unlimitedFlameAltars",
+        "freeFlameUpgrades",
+        "freeBuilding",
         "comfortBuffMultiplier",
         "rakeAnywhere"
       ]
     },
     {
-      "label": "Inventory, Storage & Stacks",
-      "description": "Max item stack sizes up to 9,999, 160 chest slots, and best backpack recipe.",
+      "label": "Inventory, Storage & Crafting",
+      "description": "Max item stack sizes up to 9,999, 160 chest slots, best backpack recipe, and free recipe crafting.",
       "settings": [
         "maxStackSize",
         "extraChestSlots",
-        "cheatBestBackpack"
+        "cheatBestBackpack",
+        "freeRecipeCrafting",
+        "itemAmountMultiplier"
       ]
     },
     {

@@ -24,24 +24,6 @@ window.MOD_CONFIGS = {
     "v0.0.1: Pure live runtime cheat menu with 33 dynamic features and C++ native sidecar. Instant F9 toggling with zero restart requirements."
   ],
   "settings": {
-    "unlimitedGliding": {
-      "value": true,
-      "label": "Infinite Gliding (Unlimited Flight)",
-      "description": "Disables glider stamina drain for unlimited glider flight.",
-      "control": "checkbox"
-    },
-    "noFallDamage": {
-      "value": true,
-      "label": "No Fall Damage (Personal & Native)",
-      "description": "Eliminates all fall damage regardless of height.",
-      "control": "checkbox"
-    },
-    "infiniteAirJump": {
-      "value": true,
-      "label": "Infinite Air-Jump / Multi-Jump (Native)",
-      "description": "Bypasses double-jump limit. Allows unlimited mid-air jumps to ascend or fly.",
-      "control": "checkbox"
-    },
     "creativeHover": {
       "value": false,
       "label": "Creative Mode Hovering / Flight (Personal & Native)",
@@ -61,57 +43,6 @@ window.MOD_CONFIGS = {
       "value": true,
       "label": "Infinite Health / God Mode (Personal)",
       "description": "Clamps Health_Min to Health_Max and zeroes incoming damage factors. You become immune to lethal damage.",
-      "control": "checkbox"
-    },
-    "healthRegenMultiplier": {
-      "value": 1,
-      "label": "Health Regen Multiplier (Personal)",
-      "description": "Multiplies natural health regeneration rate for your character (1x = standard, up to 500x).",
-      "control": "slider",
-      "min": 1,
-      "max": 500,
-      "step": 5
-    },
-    "infiniteStamina": {
-      "value": true,
-      "label": "Infinite Stamina (Personal)",
-      "description": "Locks stamina at maximum. Disables stamina drain for sprinting, fighting, and climbing.",
-      "control": "checkbox"
-    },
-    "staminaRegenMultiplier": {
-      "value": 1,
-      "label": "Stamina Regen Multiplier (Personal)",
-      "description": "Multiplies natural stamina regeneration rate (1x = standard, up to 500x).",
-      "control": "slider",
-      "min": 1,
-      "max": 500,
-      "step": 5
-    },
-    "infiniteMana": {
-      "value": true,
-      "label": "Infinite Mana (Personal)",
-      "description": "Locks mana at maximum. Spells and abilities consume zero mana.",
-      "control": "checkbox"
-    },
-    "manaRegenMultiplier": {
-      "value": 1,
-      "label": "Mana Regen Multiplier (Personal)",
-      "description": "Multiplies natural mana regeneration rate (1x = standard, up to 500x).",
-      "control": "slider",
-      "min": 1,
-      "max": 500,
-      "step": 5
-    },
-    "noHypothermia": {
-      "value": true,
-      "label": "No Hypothermia / Cold Immunity (Personal)",
-      "description": "Maintains body heat at maximum; eliminates freezing in cold or snowy biomes.",
-      "control": "checkbox"
-    },
-    "infiniteOxygen": {
-      "value": true,
-      "label": "Infinite Oxygen / Diving Breath (Personal)",
-      "description": "Maintains oxygen reserve at maximum; prevents drowning while diving.",
       "control": "checkbox"
     },
     "infiniteConsumables": {
@@ -189,16 +120,10 @@ window.MOD_CONFIGS = {
       "description": "Bypasses arrow consumption when shooting bows. Arrows in quiver never decrease.",
       "control": "checkbox"
     },
-    "infiniteDurability": {
-      "value": true,
-      "label": "Infinite Item Durability (World & Native)",
-      "description": "Disables durability loss for all weapons, tools, and armor world-wide.",
-      "control": "checkbox"
-    },
     "freeCrafting": {
       "value": true,
-      "label": "Free Building & Crafting (Hammer & Workbenches) (Native & Server)",
-      "description": "Allows placing building blocks with the construction hammer and crafting items at workbenches with zero resource costs.",
+      "label": "Free Building (Construction Hammer) & Skill Perks (Native)",
+      "description": "Allows placing building blocks with the construction hammer and learning skill perks with zero resource costs. For free Flame / Altar upgrades and workbench recipes, see sf-cheatmenu-assets.",
       "control": "checkbox"
     },
     "unlockAllBlueprints": {
@@ -268,27 +193,17 @@ window.MOD_CONFIGS = {
   "groups": [
     {
       "label": "Movement & Flight Cheats",
-      "description": "Instant runtime flight, no fall damage, infinite air jump, and creative hover.",
+      "description": "Creative hovering and vertical flight controls.",
       "settings": [
-        "unlimitedGliding",
-        "noFallDamage",
-        "infiniteAirJump",
         "creativeHover",
         "hoverSpeed"
       ]
     },
     {
       "label": "Player Attributes & God Mode",
-      "description": "Invulnerability, unlimited stamina, mana, oxygen, temperature, consumables, and shroud fog immunity.",
+      "description": "Invulnerability (God Mode), infinite consumables, and shroud fog immunity.",
       "settings": [
         "infiniteHealth",
-        "healthRegenMultiplier",
-        "infiniteStamina",
-        "staminaRegenMultiplier",
-        "infiniteMana",
-        "manaRegenMultiplier",
-        "noHypothermia",
-        "infiniteOxygen",
         "infiniteConsumables",
         "infiniteShroud"
       ]
@@ -308,10 +223,9 @@ window.MOD_CONFIGS = {
       ]
     },
     {
-      "label": "World Rules, Crafting & Durability",
-      "description": "Unbreakable gear durability, free bench crafting, blueprint unlocking, free reskill, and item drops.",
+      "label": "World Rules & Free Crafting",
+      "description": "Free bench crafting, blueprint unlocking, free reskill, and item drops.",
       "settings": [
-        "infiniteDurability",
         "freeCrafting",
         "unlockAllBlueprints",
         "freeReskill",
@@ -334,17 +248,10 @@ window.MOD_CONFIGS = {
     presets: {
   "ultimate_godmode": {
     "name": "💥 Ultimate God Mode",
-    "desc": "Invulnerability, Infinite Stamina & Mana, One-Hit Kill, Shroud Fog Immunity, Infinite Air-Jump, Infinite Consumables & Arrows.",
+    "desc": "Invulnerability (God Mode), One-Hit Kill, Shroud Fog Immunity, Infinite Consumables & Arrows.",
     "values": {
       "infiniteHealth": true,
-      "infiniteStamina": true,
-      "infiniteMana": true,
-      "noFallDamage": true,
-      "unlimitedGliding": true,
-      "infiniteAirJump": true,
       "creativeHover": false,
-      "noHypothermia": true,
-      "infiniteOxygen": true,
       "infiniteConsumables": true,
       "infiniteShroud": true,
       "oneHitKill": true,
@@ -355,23 +262,17 @@ window.MOD_CONFIGS = {
       "magicDamageMultiplier": 2000,
       "fastBowDrawSpeed": true,
       "infiniteArrows": true,
-      "infiniteDurability": true,
       "freeCrafting": true,
       "freeReskill": true
     }
   },
   "flight_explorer": {
     "name": "🕊️ Creative Flight & Explorer",
-    "desc": "Infinite Gliding, No Fall Damage, Unlimited Air Jump, and Creative Hovering (R to ascend, F to descend, Ctrl+H to toggle).",
+    "desc": "Creative Hovering and God Mode (R to ascend, F to descend, Ctrl+H to toggle).",
     "values": {
-      "unlimitedGliding": true,
-      "noFallDamage": true,
-      "infiniteAirJump": true,
       "creativeHover": true,
       "hoverSpeed": 150,
-      "infiniteStamina": true,
-      "infiniteHealth": true,
-      "infiniteDurability": true
+      "infiniteHealth": true
     }
   },
   "combat_marksman": {
@@ -382,10 +283,7 @@ window.MOD_CONFIGS = {
       "infiniteArrows": true,
       "critChance": 100,
       "critDamageMultiplier": 500,
-      "rangedDamageMultiplier": 500,
-      "infiniteStamina": true,
-      "noFallDamage": true,
-      "unlimitedGliding": true
+      "rangedDamageMultiplier": 500
     }
   },
   "peaceful_server": {
@@ -395,7 +293,6 @@ window.MOD_CONFIGS = {
       "dumbEnemies": true,
       "enemyPerceptionMultiplier": 10,
       "freeCrafting": true,
-      "infiniteDurability": true,
       "freeReskill": true,
       "xpMultiplier": 5,
       "itemAmountMultiplier": 2,
@@ -471,6 +368,18 @@ window.MOD_CONFIGS = {
       "description": "Sets maximum active Flame Altars per flame level to 255 and removes placement slot requirements. Place unlimited bases across the map.",
       "control": "checkbox"
     },
+    "freeFlameUpgrades": {
+      "value": true,
+      "label": "Free Strengthen the Flame & Altar Upgrades",
+      "description": "Sets all material and item requirements to 0 for Strengthening the Flame (all levels) and Upgrading Flame Altars. Upgrade both for free without Sparks or Shroud Cores. Requires launcher preparation / restart.",
+      "control": "checkbox"
+    },
+    "freeBuilding": {
+      "value": true,
+      "label": "Free Building & Object Placement",
+      "description": "Removes placement item consumption on all furniture, workbenches, chests, altars, and props (unlimited placement), and zeroes material costs for all building blocks, recipes, and construction hammer requirements. Requires launcher preparation / restart.",
+      "control": "checkbox"
+    },
     "comfortBuffMultiplier": {
       "value": 1,
       "label": "Comfort Rested Buff Multiplier",
@@ -491,8 +400,8 @@ window.MOD_CONFIGS = {
     },
     "extraChestSlots": {
       "value": true,
-      "label": "Extra Chest Slots (160 Slots per Storage)",
-      "description": "Expands storage capacity of all crafted storage chests to 160 slots (20 rows). Requires game restart.",
+      "label": "Extra Chest Slots (ChestSlots Integration)",
+      "description": "Expands storage capacity of all storage chests and magical chests using the safe UI-balanced grid expansion from the ChestSlots mod by Johnson1893. Requires launcher preparation / restart.",
       "control": "checkbox"
     },
     "maxStackSize": {
@@ -527,6 +436,21 @@ window.MOD_CONFIGS = {
       "label": "Free Skill Tree Node Perks",
       "description": "Sets skill point costs of all skill tree nodes to 0 and grants bonus SP per level in BalancingTable. Requires game restart.",
       "control": "checkbox"
+    },
+    "freeRecipeCrafting": {
+      "value": true,
+      "label": "Free Workbench & Hand Crafting (Zero Ingredients)",
+      "description": "Sets all ingredient and material requirements to 0 for crafting recipes across workbenches, crafting stations, and hand crafting. Requires launcher preparation / restart.",
+      "control": "checkbox"
+    },
+    "itemAmountMultiplier": {
+      "value": 100,
+      "label": "Resource Drop & Yield Multiplier (KFC Asset Pass)",
+      "description": "Scales item quantities dropped from harvesting (bushes, plants, trees), mining ore veins, world pickups, chests, and enemy loot tables (1x to 100x). Requires launcher preparation / restart.",
+      "control": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1
     }
   },
   "groups": [
@@ -541,21 +465,25 @@ window.MOD_CONFIGS = {
     },
     {
       "label": "Base Building & Altar Patches",
-      "description": "Flame Altar radius, placement count, comfort buff, and terraforming tools.",
+      "description": "Flame Altar radius, placement count, free upgrades, free building and prop placement, comfort buff, and terraforming tools.",
       "settings": [
         "altarBuildRadiusMultiplier",
         "unlimitedFlameAltars",
+        "freeFlameUpgrades",
+        "freeBuilding",
         "comfortBuffMultiplier",
         "rakeAnywhere"
       ]
     },
     {
-      "label": "Inventory, Storage & Stacks",
-      "description": "Max item stack sizes up to 9,999, 160 chest slots, and best backpack recipe.",
+      "label": "Inventory, Storage & Crafting",
+      "description": "Max item stack sizes up to 9,999, 160 chest slots, best backpack recipe, and free recipe crafting.",
       "settings": [
         "maxStackSize",
         "extraChestSlots",
-        "cheatBestBackpack"
+        "cheatBestBackpack",
+        "freeRecipeCrafting",
+        "itemAmountMultiplier"
       ]
     },
     {
