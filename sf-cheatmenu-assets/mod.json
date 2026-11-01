@@ -1,9 +1,9 @@
 {
   "$schema": "https://bonsaibauer.github.io/shroudforge/schemas/manifest.schema.json",
   "id": "sf-cheatmenu-assets",
-  "name": "SF Cheat Menu - Static World & Inventory Patches",
-  "version": "0.0.1",
-  "description": "Static KFC asset patches for Enshrouded: 9999 Item Stacks, 160 Chest Slots, 10x Altar Build Radius, Unlimited Altars, Steep Slope Mountain Walking, Movement Speed, Free Skills, and Comfort Multiplier.",
+  "name": "SF Cheat Menu Assets & Unified Tweaks Suite",
+  "version": "0.0.2",
+  "description": "Comprehensive static KFC asset patcher for Enshrouded across 25 toggleable categories: integrates 100% of Unified Tweaks plus cheat-strength options (Stacks, Magic Storage, 11-Category Loot, Creative Crafting, Building/Placement Freedom, Gliders, Fog, Slopes, Altars, and Expanded Difficulty).",
   "authors": [
     "Adromir"
   ],

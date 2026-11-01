@@ -1,9 +1,9 @@
 {
   "$schema": "https://bonsaibauer.github.io/shroudforge/schemas/manifest.schema.json",
   "id": "sf-cheatmenu",
-  "name": "SF Cheat Menu & Server Tweaks",
-  "version": "0.0.1",
-  "description": "Comprehensive cheat and configuration menu for Enshrouded: Movement Speed & Slope Walking (Asset Patches), Altar Build Radius, Unlimited Altars, Max Comfort, Shroud Timer Extension, Tier 3 Backpack, Fast Travel All Markers, Extra Chest Slots, Max Stacks, Free Skills, Rapid Bow Draw, God Mode, Free Crafting, XP Multipliers, Drop Yield, and Production Speed.",
+  "name": "SF Cheat Menu (Live Runtime Cheats)",
+  "version": "0.0.2",
+  "description": "Live F9 runtime cheat menu for Enshrouded across 5 toggleable categories: Creative Flight & Jump, God Mode & Survival, Combat & Damage Multipliers, Free Crafting & Respec, and World/AI/Server Rules.",
   "authors": [
     "Adromir"
   ],

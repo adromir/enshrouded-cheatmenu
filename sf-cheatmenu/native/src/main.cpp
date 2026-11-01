@@ -613,22 +613,35 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
             g_hover_descend_vk.store(resolve_vk(down_key, 'F'));
         }
 
+        bool cat_flight   = has_json ? parse_json_bool_setting(json_content, "Enable_Flight", true) : true;
+        bool cat_godmode  = has_json ? parse_json_bool_setting(json_content, "Enable_GodMode", true) : true;
+        bool cat_combat   = has_json ? parse_json_bool_setting(json_content, "Enable_Combat", true) : true;
+        bool cat_crafting = has_json ? parse_json_bool_setting(json_content, "Enable_CraftingRules", true) : true;
+
         for (auto& feat : g_features) {
             if (!feat.ready) continue;
 
-            bool desired = false;
-            if (has_json && json_content.find("\"" + feat.key + "\"") != std::string::npos) {
-                desired = parse_json_bool_setting(json_content, feat.key, false);
-            } else {
-                // Fallback to native-plugin.ini
-                desired = (GetPrivateProfileIntA("Features", feat.ini_key.c_str(), 0, ini_path.c_str()) != 0);
-            }
+            bool cat_on = true;
+            if (feat.key == "creativeHover") cat_on = cat_flight;
+            else if (feat.key == "infiniteConsumables" || feat.key == "infiniteShroud") cat_on = cat_godmode;
+            else if (feat.key == "infiniteArrows") cat_on = cat_combat;
+            else if (feat.key == "freeCrafting") cat_on = cat_crafting;
 
-            if (feat.key == "freeCrafting" && !desired && has_json) {
-                desired = parse_json_bool_setting(json_content, "freeBuilding", false) ||
-                          parse_json_bool_setting(json_content, "freeCrafting", false) ||
-                          parse_json_bool_setting(json_content, "freeRecipeCrafting", false) ||
-                          parse_json_bool_setting(json_content, "freeReskill", false);
+            bool desired = false;
+            if (cat_on) {
+                if (has_json && json_content.find("\"" + feat.key + "\"") != std::string::npos) {
+                    desired = parse_json_bool_setting(json_content, feat.key, false);
+                } else {
+                    // Fallback to native-plugin.ini
+                    desired = (GetPrivateProfileIntA("Features", feat.ini_key.c_str(), 0, ini_path.c_str()) != 0);
+                }
+
+                if (feat.key == "freeCrafting" && !desired && has_json) {
+                    desired = parse_json_bool_setting(json_content, "freeBuilding", false) ||
+                              parse_json_bool_setting(json_content, "freeCrafting", false) ||
+                              parse_json_bool_setting(json_content, "freeRecipeCrafting", false) ||
+                              parse_json_bool_setting(json_content, "freeReskill", false);
+                }
             }
 
             sync_feature(feat, desired);

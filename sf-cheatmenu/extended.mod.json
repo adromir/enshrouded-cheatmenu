@@ -11,14 +11,20 @@
     "website": "https://adromir.github.io/enshrouded-cheatmenu/"
   },
   "changelog": [
-    "v0.0.1: Pure live runtime cheat menu with 33 dynamic features and C++ native sidecar. Instant F9 toggling with zero restart requirements."
+    "v0.0.2: Organized live runtime and native cheats into independently toggleable categories with per-category master switches."
   ],
   "settings": {
+    "Enable_Flight": {
+      "value": true,
+      "label": "Master Switch: Movement & Flight",
+      "description": "Enables or disables all live movement, creative hover flight, and jump height cheats in this category.",
+      "control": "toggle"
+    },
     "creativeHover": {
       "value": false,
       "label": "Creative Mode Hovering / Flight (Personal & Native)",
       "description": "Allows floating stationary in mid-air and flying vertically without falling (R to ascend, F to descend, or Ctrl+H to toggle).",
-      "control": "checkbox"
+      "control": "toggle"
     },
     "hoverSpeed": {
       "value": 100,
@@ -29,29 +35,50 @@
       "max": 500,
       "step": 25
     },
+    "jumpHeightMultiplier": {
+      "value": 100,
+      "label": "Live Jump Height Multiplier %",
+      "description": "Multiplies vertical jump launch height in real time (100% = normal, up to 500%).",
+      "control": "slider",
+      "min": 100,
+      "max": 500,
+      "step": 25
+    },
+    "Enable_GodMode": {
+      "value": true,
+      "label": "Master Switch: God Mode & Survival",
+      "description": "Enables or disables God Mode invulnerability, infinite consumables, and Shroud timer freeze in this category.",
+      "control": "toggle"
+    },
     "infiniteHealth": {
       "value": true,
       "label": "Infinite Health / God Mode (Personal)",
-      "description": "Clamps Health_Min to Health_Max and zeroes incoming damage factors. You become immune to lethal damage.",
-      "control": "checkbox"
+      "description": "Boosts health regeneration and zeroes incoming enemy/boss damage factors so you become immune to lethal damage.",
+      "control": "toggle"
     },
     "infiniteConsumables": {
       "value": true,
       "label": "Infinite Consumables (Native)",
       "description": "Potions, food, bandages, and flasks are not consumed upon use.",
-      "control": "checkbox"
+      "control": "toggle"
     },
     "infiniteShroud": {
       "value": true,
       "label": "Freeze Shroud Timer / Shroud God Mode (Native)",
       "description": "Bypasses engine shroud fog checks. Shroud timer is locked and will never tick down or kill you in the Shroud/Miasma.",
-      "control": "checkbox"
+      "control": "toggle"
+    },
+    "Enable_Combat": {
+      "value": true,
+      "label": "Master Switch: Combat, Crits & Arrows",
+      "description": "Enables or disables One-Hit Kill, critical strike modifiers, live damage multipliers, and infinite arrows in this category.",
+      "control": "toggle"
     },
     "oneHitKill": {
       "value": false,
       "label": "One-Hit Kill / Infinite Damage (Personal)",
       "description": "Deals lethal damage on any enemy or boss hit, instantly defeating them.",
-      "control": "checkbox"
+      "control": "toggle"
     },
     "critChance": {
       "value": 100,
@@ -74,7 +101,7 @@
     "meleeDamageMultiplier": {
       "value": 2000,
       "label": "Melee Damage % (Personal)",
-      "description": "Multiplier for melee weapon attacks (100% = default, up to 2000% max).",
+      "description": "Live attribute multiplier for melee weapon attacks (100% = default, up to 2000% max).",
       "control": "slider",
       "min": 100,
       "max": 2000,
@@ -83,7 +110,7 @@
     "rangedDamageMultiplier": {
       "value": 2000,
       "label": "Ranged Damage % (Personal)",
-      "description": "Multiplier for bows and thrown weapons (100% = default, up to 2000% max).",
+      "description": "Live attribute multiplier for bows and thrown weapons (100% = default, up to 2000% max).",
       "control": "slider",
       "min": 100,
       "max": 2000,
@@ -92,50 +119,56 @@
     "magicDamageMultiplier": {
       "value": 2000,
       "label": "Magic Damage % (Personal)",
-      "description": "Multiplier for staves, wands, and spells (100% = default, up to 2000% max).",
+      "description": "Live attribute multiplier for staves, wands, and spells (100% = default, up to 2000% max).",
       "control": "slider",
       "min": 100,
       "max": 2000,
       "step": 25
     },
-    "fastBowDrawSpeed": {
-      "value": false,
-      "label": "Rapid Bow Draw Speed (Fast Shooting)",
-      "description": "Reduces bow draw delay in weapon item definitions, allowing rapid firing of arrows.",
-      "control": "checkbox"
-    },
     "infiniteArrows": {
       "value": true,
       "label": "Infinite Arrows & Quiver (Native)",
       "description": "Bypasses arrow consumption when shooting bows. Arrows in quiver never decrease.",
-      "control": "checkbox"
+      "control": "toggle"
+    },
+    "Enable_CraftingRules": {
+      "value": true,
+      "label": "Master Switch: Free Building & Reskill",
+      "description": "Enables or disables free Construction Hammer block placement and zero-cost skill resets in this category.",
+      "control": "toggle"
     },
     "freeCrafting": {
       "value": true,
-      "label": "Free Building (Construction Hammer) & Skill Perks (Native)",
-      "description": "Allows placing building blocks with the construction hammer and crafting without material checks or item consumption (native memory bypass for inventory requirements and deduction). For free prop/furniture placement and asset recipes, see sf-cheatmenu-assets.",
-      "control": "checkbox"
-    },
-    "unlockAllBlueprints": {
-      "value": false,
-      "label": "Unlock All Blueprints & Building Blocks (Safe Asset Pass)",
-      "description": "Safely unlocks all missing building blocks, furniture, and workshop blueprints without corrupting item requirements.",
-      "control": "checkbox"
+      "label": "Free Building (Construction Hammer) & Perks (Native)",
+      "description": "Allows placing building blocks with the construction hammer and learning/upgrading perks without material checks (native memory bypass). For recipe/prop/altar crafting tweaks, see sf-cheatmenu-assets.",
+      "control": "toggle"
     },
     "freeReskill": {
       "value": true,
       "label": "Free Reskill / Skill Reset (Zero Rune Costs)",
       "description": "Allows resetting skills at the Flame Altar with zero Rune costs.",
-      "control": "checkbox"
+      "control": "toggle"
     },
-    "itemAmountMultiplier": {
-      "value": 1,
-      "label": "Resource Drop & Yield Multiplier (World/Server)",
-      "description": "Multiplies item quantities dropped from harvesting and mining (1x to 100x).",
+    "Enable_WorldRules": {
+      "value": true,
+      "label": "Master Switch: World AI, XP & Production",
+      "description": "Enables or disables enemy pacification, perception range, XP, drop yield, and workstation/plant speed overrides in this category.",
+      "control": "toggle"
+    },
+    "dumbEnemies": {
+      "value": false,
+      "label": "Pacify World Enemies (Server/Host AI)",
+      "description": "Enemies will not initiate attacks and are completely pacified.",
+      "control": "toggle"
+    },
+    "enemyPerceptionMultiplier": {
+      "value": 100,
+      "label": "Enemy Perception Range % (World/Server)",
+      "description": "Detection and sight range of enemies (100% = normal, 0% = completely blind).",
       "control": "slider",
-      "min": 1,
-      "max": 100,
-      "step": 1
+      "min": 0,
+      "max": 200,
+      "step": 5
     },
     "xpMultiplier": {
       "value": 1,
@@ -146,20 +179,14 @@
       "max": 100,
       "step": 1
     },
-    "dumbEnemies": {
-      "value": false,
-      "label": "Pacify World Enemies (Server/Host AI)",
-      "description": "Enemies will not initiate attacks and are completely pacified.",
-      "control": "checkbox"
-    },
-    "enemyPerceptionMultiplier": {
-      "value": 100,
-      "label": "Enemy Perception Range % (World/Server)",
-      "description": "Detection and sight range of enemies (100% = normal, 0% = completely blind).",
+    "itemAmountMultiplier": {
+      "value": 1,
+      "label": "Resource Drop & Yield Multiplier (World/Server)",
+      "description": "Multiplies world resource drop factor in GameSettings (1x to 100x). For granular item/loot table multipliers, see Loot Drop Multipliers in sf-cheatmenu-assets.",
       "control": "slider",
-      "min": 0,
-      "max": 200,
-      "step": 5
+      "min": 1,
+      "max": 100,
+      "step": 1
     },
     "productionSpeedMultiplier": {
       "value": 1,
@@ -182,53 +209,57 @@
   },
   "groups": [
     {
-      "label": "Movement & Flight Cheats",
-      "description": "Creative hovering and vertical flight controls.",
+      "label": "Movement & Flight",
+      "description": "Creative hovering, vertical flight controls, and live jump height scaling.",
       "settings": [
+        "Enable_Flight",
         "creativeHover",
-        "hoverSpeed"
+        "hoverSpeed",
+        "jumpHeightMultiplier"
       ]
     },
     {
-      "label": "Player Attributes & God Mode",
-      "description": "Invulnerability (God Mode), infinite consumables, and shroud fog immunity.",
+      "label": "God Mode & Survival",
+      "description": "Invulnerability (God Mode), infinite consumables, and Shroud fog timer freeze.",
       "settings": [
+        "Enable_GodMode",
         "infiniteHealth",
         "infiniteConsumables",
         "infiniteShroud"
       ]
     },
     {
-      "label": "Combat, Damage & Arrows",
-      "description": "Instant one-hit kill, critical strike multipliers, damage amplification, rapid bow draw, and infinite arrows.",
+      "label": "Combat, Crits & Arrows",
+      "description": "Instant one-hit kill, critical strike multipliers, live damage amplification, and infinite arrows.",
       "settings": [
+        "Enable_Combat",
         "oneHitKill",
         "critChance",
         "critDamageMultiplier",
         "meleeDamageMultiplier",
         "rangedDamageMultiplier",
         "magicDamageMultiplier",
-        "fastBowDrawSpeed",
         "infiniteArrows"
       ]
     },
     {
-      "label": "World Rules & Free Crafting",
-      "description": "Free bench crafting, blueprint unlocking, free reskill, and item drops.",
+      "label": "Free Building & Reskill",
+      "description": "Free Construction Hammer block placement and zero-cost skill resets.",
       "settings": [
+        "Enable_CraftingRules",
         "freeCrafting",
-        "unlockAllBlueprints",
-        "freeReskill",
-        "itemAmountMultiplier"
+        "freeReskill"
       ]
     },
     {
-      "label": "World Difficulty, XP & Production",
-      "description": "Passive enemy AI, perception range, XP multiplier, and accelerated workstation production / plant growth.",
+      "label": "World AI, XP & Production",
+      "description": "Passive enemy AI, perception range, XP/drop factors, and accelerated workstation production / plant growth.",
       "settings": [
+        "Enable_WorldRules",
         "dumbEnemies",
         "enemyPerceptionMultiplier",
         "xpMultiplier",
+        "itemAmountMultiplier",
         "productionSpeedMultiplier",
         "plantGrowthMultiplier"
       ]

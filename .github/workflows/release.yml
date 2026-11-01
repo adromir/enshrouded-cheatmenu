@@ -23,20 +23,51 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Determine Version
+      - name: Determine & Stamp Version
         id: get_version
         shell: pwsh
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          GIT_REF: ${{ github.ref }}
         run: |
-          if ("${{ github.event.inputs.version }}" -ne "") {
-            $VERSION = "${{ github.event.inputs.version }}"
-          } elseif ("${{ github.ref }}" -like "refs/tags/*") {
-            $VERSION = "${{ github.ref }}".Replace("refs/tags/", "")
+          if (-not [string]::IsNullOrWhiteSpace($env:INPUT_VERSION)) {
+            $raw = $env:INPUT_VERSION.Trim()
+          } elseif ($env:GIT_REF -like "refs/tags/*") {
+            $raw = $env:GIT_REF.Substring("refs/tags/".Length).Trim()
           } else {
             $manifest = Get-Content sf-cheatmenu/mod.json -Raw | ConvertFrom-Json
-            $VERSION = "v$($manifest.version)"
+            $raw = "$($manifest.version)".Trim()
           }
-          echo "VERSION=$VERSION" >> $env:GITHUB_OUTPUT
-          Write-Host "Building package for version: $VERSION"
+
+          $SEMVER = $raw -replace '^[vV]', ''
+          if ($SEMVER -notmatch '^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$') {
+            Write-Error "Invalid semantic version '$SEMVER' (derived from '$raw'). Expected format like 0.1.0 or v0.1.0."
+            exit 1
+          }
+          $VERSION = "v$SEMVER"
+
+          # Stamp semantic version into both ShroudForge mod.json manifests (preserving formatting & UTF-8 no BOM)
+          $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+          foreach ($manifestPath in @("sf-cheatmenu/mod.json", "sf-cheatmenu-assets/mod.json")) {
+            $jsonText = [System.IO.File]::ReadAllText((Resolve-Path $manifestPath), $utf8NoBom)
+            $stampedJson = [regex]::Replace($jsonText, '("version"\s*:\s*)"[^"]*"', "`${1}`"$SEMVER`"", 1)
+            $stampedJson | ConvertFrom-Json | Out-Null
+            [System.IO.File]::WriteAllText((Resolve-Path $manifestPath), $stampedJson, $utf8NoBom)
+            Write-Host "Stamped $manifestPath -> version $SEMVER"
+          }
+
+          # Stamp header comments in Lua entrypoints
+          foreach ($luaPath in @("sf-cheatmenu/src/mod.lua", "sf-cheatmenu-assets/src/mod.lua")) {
+            if (Test-Path $luaPath) {
+              $luaText = [System.IO.File]::ReadAllText((Resolve-Path $luaPath), $utf8NoBom)
+              $stampedLua = [regex]::Replace($luaText, '(?m)^(\s*Version:\s*)\S+', "`${1}$SEMVER", 1)
+              [System.IO.File]::WriteAllText((Resolve-Path $luaPath), $stampedLua, $utf8NoBom)
+            }
+          }
+
+          "VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "SEMVER=$SEMVER" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          Write-Host "Building package for release tag: $VERSION (manifest semver: $SEMVER)"
 
       - name: Compile Native Sidecar & Proxy DLLs
         shell: pwsh
@@ -96,8 +127,10 @@ jobs:
 
       - name: Create Zip Archives & Checksums
         shell: pwsh
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
         run: |
-          $VERSION = "${{ steps.get_version.outputs.VERSION }}"
+          $VERSION = $env:VERSION
           
           # Compress individual and bundle archives
           $archives = @(

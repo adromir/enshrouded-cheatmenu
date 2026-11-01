@@ -111,6 +111,7 @@
       }
     }
 
+    renderCategories();
     updateUI();
     renderPresets();
     showToast(`Applied preset: ${preset.name}`);
@@ -215,7 +216,7 @@
         const controlContainer = document.createElement('div');
         controlContainer.className = 'setting-control';
 
-        if (def.control === 'checkbox') {
+        if (def.control === 'checkbox' || def.control === 'toggle') {
           const switchLabel = document.createElement('label');
           switchLabel.className = 'switch';
           const input = document.createElement('input');
@@ -263,6 +264,38 @@
           sliderWrap.appendChild(range);
           sliderWrap.appendChild(numBadge);
           controlContainer.appendChild(sliderWrap);
+
+        } else if (def.control === 'number') {
+          const numInput = document.createElement('input');
+          numInput.type = 'number';
+          if (def.min !== undefined) numInput.min = def.min;
+          if (def.max !== undefined) numInput.max = def.max;
+          numInput.step = def.step || 1;
+          numInput.value = val;
+          numInput.style.cssText = 'width: 110px; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.16); background: rgba(0,0,0,0.35); color: #ffd54f; font-family: monospace; font-size: 0.95rem; text-align: right;';
+          numInput.addEventListener('input', (e) => {
+            const parsed = parseFloat(e.target.value);
+            if (!Number.isNaN(parsed)) {
+              currentSettings[key] = parsed;
+              activePresetKey = null;
+              renderPresets();
+              updateUI();
+            }
+          });
+          controlContainer.appendChild(numInput);
+
+        } else if (def.control === 'text') {
+          const txtInput = document.createElement('input');
+          txtInput.type = 'text';
+          txtInput.value = val ?? '';
+          txtInput.style.cssText = 'width: 160px; padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.16); background: rgba(0,0,0,0.35); color: #a5d6a7; font-family: monospace; font-size: 0.9rem;';
+          txtInput.addEventListener('input', (e) => {
+            currentSettings[key] = e.target.value;
+            activePresetKey = null;
+            renderPresets();
+            updateUI();
+          });
+          controlContainer.appendChild(txtInput);
         }
 
         top.appendChild(controlContainer);

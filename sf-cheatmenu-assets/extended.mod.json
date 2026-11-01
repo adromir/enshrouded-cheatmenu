@@ -11,173 +11,1571 @@
     "website": "https://adromir.github.io/enshrouded-cheatmenu/"
   },
   "changelog": [
-    "v0.0.1: Static KFC asset patches: 9999 Item Stacks, 160 Chest Slots, Altar Build Radius, Unlimited Altars, Steep Slope Walking, Movement Speed, Free Skills, and Comfort Multiplier."
+    "v0.0.2: Integrated full Unified Tweaks suite alongside SF Cheat Menu asset patches into 25 independently toggleable categories."
   ],
   "settings": {
-    "movementSpeedMultiplier": {
+    "Enable_NoIntroVideo": {
+      "value": true,
+      "label": "Master Switch: Skip Intro Video",
+      "control": "toggle",
+      "description": "Skips the startup logo videos and fade-in delays (Default: false)"
+    },
+    "Enable_Category_LevelsSkills": {
+      "value": true,
+      "label": "Master Switch: Levels & Skill Tree",
+      "control": "toggle",
+      "description": "Enables or disables all player/item level caps, skill points per level, and zero-cost skill tree perks in this category."
+    },
+    "Enable_PlayerItemLevelTweaks": {
+      "value": false,
+      "label": "Player / Item Level Cap Tweaks",
+      "control": "toggle",
+      "description": "Applies custom Player XP Cap, Item Level Cap, and Skill Points Per Level (Default: false)"
+    },
+    "Enable_ItemLevelCapSync": {
+      "value": false,
+      "label": "Sync Item Level Cap",
+      "control": "toggle",
+      "description": "Syncs global item cap with individual item cap limits (Default: false)"
+    },
+    "PlayerLevelCap": {
+      "value": 60,
+      "label": "Player XP Cap Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Level at which the player stops earning XP (Default: 50)"
+    },
+    "ItemLevelCap": {
+      "value": 60,
+      "label": "Item Level Cap",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Maximum allowed item level (Default: 50)"
+    },
+    "SkillPointsPerLevel": {
+      "value": 3,
+      "label": "Skill Points Per Level",
+      "control": "number",
+      "min": 1,
+      "max": 15,
+      "step": 1,
+      "description": "Amount of skill points acquired per level up (Default: 2)"
+    },
+    "freeSkillTree": {
+      "value": true,
+      "label": "Free Skill Tree Node Perks (0 SP Cost)",
+      "control": "toggle",
+      "description": "Sets skill point costs of all skill tree nodes to 0 so every perk can be learned freely."
+    },
+    "Enable_AttributeScaling": {
+      "value": false,
+      "label": "Master Switch: Attribute Scaling",
+      "control": "toggle",
+      "description": "Enables or disables per-attribute stat scaling changes in this category (Default: false)"
+    },
+    "AttributeScaling_HealthPerCon": {
       "value": 100,
-      "label": "Movement Speed % (Walking & Sprinting)",
-      "description": "Patches player locomotion speed via keen::ecs::Movement template. (100% = normal, up to 500%). Requires game restart to take effect.",
-      "control": "slider",
-      "min": 100,
+      "label": "Health per Constitution",
+      "control": "number",
+      "min": 1,
       "max": 500,
-      "step": 10
+      "step": 1,
+      "description": "Health per Constitution point (Default: 50)"
     },
-    "jumpHeightMultiplier": {
+    "AttributeScaling_ManaPerSpi": {
+      "value": 25,
+      "label": "Mana per Spirit",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Mana per Spirit point (Default: 20)"
+    },
+    "AttributeScaling_StaminaPerEnd": {
+      "value": 20,
+      "label": "Stamina per Endurance",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Stamina per Endurance point (Default: 10)"
+    },
+    "AttributeScaling_DamagePerAttr": {
+      "value": "0.1",
+      "label": "Damage per Attribute Point",
+      "control": "text",
+      "description": "Damage bonus per attribute point, 0.10 = 10% (Default: 0.05)"
+    },
+    "Enable_Category_BaseStats": {
+      "value": false,
+      "label": "Master Switch: Player Base Stats & Comfort",
+      "control": "toggle",
+      "description": "Enables or disables base player stats (Health, Mana, Stamina, Oxygen, Shroud Time) and Comfort rested buff multipliers."
+    },
+    "Enable_PlayerBaseStats": {
+      "value": false,
+      "label": "Override Player Base Stats",
+      "control": "toggle",
+      "description": "Applies custom base Health, Mana, Stamina, Oxygen, and Shroud timer values (Default: false)"
+    },
+    "PlayerBase_Health": {
       "value": 100,
-      "label": "Jump Height Multiplier %",
-      "description": "Multiplies vertical jump launch height (100% = normal, up to 500%). Requires game restart.",
-      "control": "slider",
-      "min": 100,
-      "max": 500,
-      "step": 25
+      "label": "Base Health",
+      "control": "number",
+      "min": 1,
+      "max": 10000,
+      "step": 1,
+      "description": "Base health before attributes (Default: 100)"
     },
-    "noSlopeSlide": {
-      "value": true,
-      "label": "Walk on Steep Slopes (No Sliding)",
-      "description": "Adjusts slope sliding threshold on player SlopeConfig to 89 degrees. Allows walking up sheer cliffs and mountain slopes without sliding.",
-      "control": "checkbox"
-    },
-    "altarBuildRadiusMultiplier": {
+    "PlayerBase_Mana": {
       "value": 100,
-      "label": "Flame Altar Build Radius Multiplier %",
-      "description": "Expands protected building radius per Flame Altar level (100% = vanilla up to 1000% / 320m). Requires game restart.",
-      "control": "slider",
-      "min": 100,
-      "max": 1000,
-      "step": 50
+      "label": "Base Mana",
+      "control": "number",
+      "min": 1,
+      "max": 10000,
+      "step": 1,
+      "description": "Base mana before attributes (Default: 100)"
     },
-    "unlimitedFlameAltars": {
-      "value": true,
-      "label": "Unlimited Flame Altars",
-      "description": "Sets maximum active Flame Altars per flame level to 255 and removes placement slot requirements. Place unlimited bases across the map.",
-      "control": "checkbox"
+    "PlayerBase_Stamina": {
+      "value": 100,
+      "label": "Base Stamina",
+      "control": "number",
+      "min": 1,
+      "max": 10000,
+      "step": 1,
+      "description": "Base stamina before attributes (Default: 100)"
     },
-    "freeFlameUpgrades": {
-      "value": true,
-      "label": "Free Strengthen the Flame & Altar Upgrades",
-      "description": "Sets all material and item requirements to 0 for Strengthening the Flame (all levels) and Upgrading Flame Altars. Upgrade both for free without Sparks or Shroud Cores. Requires launcher preparation / restart.",
-      "control": "checkbox"
+    "PlayerBase_Oxygen": {
+      "value": 60,
+      "label": "Base Oxygen",
+      "control": "number",
+      "min": 1,
+      "max": 300,
+      "step": 1,
+      "description": "Base underwater breath in seconds (Default: 30)"
     },
-    "freeBuilding": {
-      "value": true,
-      "label": "Free Building & Object Placement",
-      "description": "Removes placement item consumption on all furniture, workbenches, chests, altars, and props (unlimited placement), and zeroes material costs for all building blocks, recipes, and construction hammer requirements. Requires launcher preparation / restart.",
-      "control": "checkbox"
+    "PlayerBase_FogResistance": {
+      "value": 240,
+      "label": "Base Shroud Time (s)",
+      "control": "number",
+      "min": 1,
+      "max": 3600,
+      "step": 1,
+      "description": "Base shroud timer in seconds (Default: 240)"
+    },
+    "PlayerFog_PerFlameLevel": {
+      "value": 90,
+      "label": "Shroud Time per Flame Level (s)",
+      "control": "number",
+      "min": 0,
+      "max": 600,
+      "step": 1,
+      "description": "Extra shroud time per flame level in seconds (Default: 60)"
     },
     "comfortBuffMultiplier": {
       "value": 1,
       "label": "Comfort Rested Buff Multiplier",
-      "description": "Scales rested buff duration from shelter comfort (1x = vanilla up to 100x). Requires game restart.",
       "control": "slider",
       "min": 1,
       "max": 100,
-      "step": 1
+      "step": 1,
+      "description": "Scales rested buff duration from shelter comfort (1x = vanilla, up to 100x)."
     },
-    "shroudTimeMultiplier": {
-      "value": 1,
-      "label": "Shroud Fog Time Multiplier",
-      "description": "Extends authoritative player base fog resistance duration (1x = 90s, up to 100x / ~2.5 hrs). Requires game restart.",
-      "control": "slider",
+    "Enable_ItemLevelMinimums": {
+      "value": false,
+      "label": "Master Switch: Item Level Minimums",
+      "control": "toggle",
+      "description": "Forces dropped items to a minimum level per item type (Default: false)"
+    },
+    "Enable_ItemLevelMin_Weapon": {
+      "value": false,
+      "label": "Min Level: Weapon",
+      "control": "toggle",
+      "description": "Force dropped weapons to a minimum level. Suggest 5 levels under max for in-game upgrades (Default: false)"
+    },
+    "ItemLevelMin_Weapon": {
+      "value": 55,
+      "label": "Weapon Min Level",
+      "control": "number",
       "min": 1,
-      "max": 100,
-      "step": 1
+      "max": 200,
+      "step": 1,
+      "description": "Min level for dropped weapons (Default: varies)"
     },
-    "extraChestSlots": {
+    "Enable_ItemLevelMin_Armor": {
+      "value": false,
+      "label": "Min Level: Armor",
+      "control": "toggle",
+      "description": "Force dropped armor to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Armor": {
+      "value": 45,
+      "label": "Armor Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for armor (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Shield": {
+      "value": false,
+      "label": "Min Level: Shield",
+      "control": "toggle",
+      "description": "Force dropped shields to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Shield": {
+      "value": 45,
+      "label": "Shield Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for shields (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Gem": {
+      "value": false,
+      "label": "Min Level: Gem",
+      "control": "toggle",
+      "description": "Force dropped gems to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Gem": {
+      "value": 60,
+      "label": "Gem Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for dropped gems (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Ring": {
+      "value": false,
+      "label": "Min Level: Ring",
+      "control": "toggle",
+      "description": "Force dropped rings to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Ring": {
+      "value": 45,
+      "label": "Ring Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for rings (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Spell": {
+      "value": false,
+      "label": "Min Level: Spell",
+      "control": "toggle",
+      "description": "Force dropped spells to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Spell": {
+      "value": 50,
+      "label": "Spell Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for spells (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Arrow": {
+      "value": false,
+      "label": "Min Level: Arrow",
+      "control": "toggle",
+      "description": "Force dropped arrows to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Arrow": {
+      "value": 50,
+      "label": "Arrow Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for arrows (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Tool": {
+      "value": false,
+      "label": "Min Level: Tool",
+      "control": "toggle",
+      "description": "Force dropped tools to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Tool": {
+      "value": 50,
+      "label": "Tool Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for tools (Default: varies)"
+    },
+    "Enable_ItemLevelMin_Misc": {
+      "value": false,
+      "label": "Min Level: Misc",
+      "control": "toggle",
+      "description": "Force other leveled items to a minimum level (Default: false)"
+    },
+    "ItemLevelMin_Misc": {
+      "value": 50,
+      "label": "Misc Min Level",
+      "control": "number",
+      "min": 1,
+      "max": 200,
+      "step": 1,
+      "description": "Min level for miscellaneous items (Default: varies)"
+    },
+    "Enable_DamageTweaks": {
+      "value": false,
+      "label": "Master Switch: Weapon & Spell Damage",
+      "control": "toggle",
+      "description": "Enables or disables static item damage multipliers and bow draw speed scaling (Default: false)"
+    },
+    "DamageMult_Melee1H": {
+      "value": "2.0",
+      "label": "Melee 1H Multiplier",
+      "control": "text",
+      "description": "Multiplies One-Handed Melee weapon damage (Default: 1.0)"
+    },
+    "DamageMult_Melee2H": {
+      "value": "2.0",
+      "label": "Melee 2H Multiplier",
+      "control": "text",
+      "description": "Multiplies Two-Handed Melee weapon damage (Default: 1.0)"
+    },
+    "DamageMult_Range": {
+      "value": "2.0",
+      "label": "Ranged Multiplier",
+      "control": "text",
+      "description": "Multiplies Bow/Ranged weapon damage (Default: 1.0)"
+    },
+    "BowDrawSpeed_Multiplier": {
+      "value": "0.5",
+      "label": "Bow Draw Speed Multiplier",
+      "control": "text",
+      "description": "Multiplies bow draw / charge time, lower is faster (Default: 1.0, e.g. 0.5 = 2x faster draw)"
+    },
+    "DamageMult_Wand": {
+      "value": "2.0",
+      "label": "Wand Multiplier",
+      "control": "text",
+      "description": "Multiplies Wand damage (Default: 1.0)"
+    },
+    "DamageMult_Arrow": {
+      "value": "2.0",
+      "label": "Arrow Damage Multiplier",
+      "control": "text",
+      "description": "Multiplies Arrow ammo damage (Default: 1.0)"
+    },
+    "DamageMult_Spell": {
+      "value": "2.0",
+      "label": "Spell Damage Multiplier",
+      "control": "text",
+      "description": "Multiplies Magic Spell ammo damage (Default: 1.0)"
+    },
+    "Enable_ToolTweaks": {
+      "value": false,
+      "label": "Master Switch: Harvesting Tool Damage",
+      "control": "toggle",
+      "description": "Enables or disables Felling Axe and Pickaxe harvesting damage multipliers (Default: false)"
+    },
+    "ToolMult_Axe": {
+      "value": "2.0",
+      "label": "Axe Wood Damage Multiplier",
+      "control": "text",
+      "description": "Multiplies Wood damage specifically for Felling Axes (Default: 1.0)"
+    },
+    "ToolMult_Pickaxe": {
+      "value": "2.0",
+      "label": "Pickaxe Stone/Terrain Multiplier",
+      "control": "text",
+      "description": "Multiplies Stone/Terrain damage specifically for Pickaxes (Default: 1.0)"
+    },
+    "Enable_GearStatTweaks": {
+      "value": false,
+      "label": "Master Switch: Gear Stats & Regen",
+      "control": "toggle",
+      "description": "Enables or disables Health/Mana/Stamina bonus and regen multipliers on Armor and Rings (Default: false)"
+    },
+    "RegenMult_Health": {
+      "value": "5.0",
+      "label": "Gear Health Regen Multiplier",
+      "control": "text",
+      "description": "Multiplies health regeneration rate from gear (Default: 1.0)"
+    },
+    "RegenMult_Mana": {
+      "value": "5.0",
+      "label": "Gear Mana Regen Multiplier",
+      "control": "text",
+      "description": "Multiplies mana regeneration rate from gear (Default: 1.0)"
+    },
+    "RegenMult_Stamina": {
+      "value": "5.0",
+      "label": "Gear Stamina Regen Multiplier",
+      "control": "text",
+      "description": "Multiplies stamina regeneration rate from gear (Default: 1.0)"
+    },
+    "GearMult_HealthBonus": {
+      "value": "3.0",
+      "label": "Gear Health Bonus Multiplier",
+      "control": "text",
+      "description": "Multiplier for flat health bonuses on gear (Default: 1.0)"
+    },
+    "GearMult_StaminaBonus": {
+      "value": "3.0",
+      "label": "Gear Stamina Bonus Multiplier",
+      "control": "text",
+      "description": "Multiplier for flat stamina bonuses on gear (Default: 1.0)"
+    },
+    "GearMult_ManaBonus": {
+      "value": "3.0",
+      "label": "Gear Mana Bonus Multiplier",
+      "control": "text",
+      "description": "Multiplier for flat mana bonuses on gear (Default: 1.0)"
+    },
+    "Enable_SpellTweaks": {
+      "value": false,
+      "label": "Master Switch: Spell Casting & Mana Cost",
+      "control": "toggle",
+      "description": "Enables or disables spell cast time and mana cost multipliers (Default: false)"
+    },
+    "SpellCastTime_Multiplier": {
+      "value": "0.2",
+      "label": "Spell Cast Time Multiplier",
+      "control": "text",
+      "description": "Multiplies spell cast time, lower is faster (Default: 1.0, e.g. 0.2 = 5x faster)"
+    },
+    "SpellManaCost_Multiplier": {
+      "value": "0.2",
+      "label": "Spell Mana Cost Multiplier",
+      "control": "text",
+      "description": "Multiplies spell mana cost, lower is cheaper (Default: 1.0, e.g. 0.0 = free)"
+    },
+    "Enable_Category_Storage": {
       "value": true,
-      "label": "Extra Chest Slots (ChestSlots Integration)",
-      "description": "Expands storage capacity of all storage chests and magical chests using the safe UI-balanced grid expansion from the ChestSlots mod by Johnson1893. Requires launcher preparation / restart.",
-      "control": "checkbox"
+      "label": "Master Switch: Backpack & Chest Storage",
+      "control": "toggle",
+      "description": "Enables or disables Backpack slot expansion, Chest slot capacity, and Extended Magic Storage."
     },
-    "maxStackSize": {
-      "value": 9500,
-      "label": "Max Item & Ammo Stack Size",
-      "description": "Sets maximum inventory stack size for all stackable items, ores, ammo, and arrows up to 9,999 (0 = default stack sizes). Requires game restart.",
+    "Enable_BackpackTweaks": {
+      "value": false,
+      "label": "Backpack Slot Multiplier Tweak",
+      "control": "toggle",
+      "description": "Overrides backpack slot sizes. Unequip your backpack before enabling or changing backpack settings! (Default: false)"
+    },
+    "Backpack_SlotMultiplier": {
+      "value": 2,
+      "label": "Backpack Slot Multiplier",
+      "control": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "description": "Multiplies slots for each backpack up to a safe cap of 40 (Default: 1)"
+    },
+    "Enable_ChestSizeTweaks": {
+      "value": true,
+      "label": "Chest Size Tweaks",
+      "control": "toggle",
+      "description": "Overrides storage chest capacity (Default: true)"
+    },
+    "Chest_MaxSlots": {
+      "value": 96,
+      "label": "Chest Max Slots",
+      "control": "number",
+      "min": 1,
+      "max": 96,
+      "step": 1,
+      "description": "Maximum slots for storage chests (Default: 96)"
+    },
+    "Chest_SlotMultiplier": {
+      "value": 2,
+      "label": "Chest Slot Multiplier",
+      "control": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "description": "Multiplies each storage chest tier's base capacity up to Chest Max Slots (Default: 2)"
+    },
+    "Enable_MagicFurniture": {
+      "value": false,
+      "label": "Extended Magic Storage: Furniture",
+      "control": "toggle",
+      "description": "Enables pull-from-storage magic crafting stock on decorative furniture with inventory slots (Default: false)"
+    },
+    "Enable_MagicFactories": {
+      "value": false,
+      "label": "Extended Magic Storage: Factories",
+      "control": "toggle",
+      "description": "Enables pull-from-storage magic crafting stock on production buildings with Quick-Stack deposit disabled (Default: false)"
+    },
+    "Enable_StackSizeTweaks": {
+      "value": true,
+      "label": "Master Switch: Item Stack Sizes",
+      "control": "toggle",
+      "description": "Enables or disables overriding maximum item stack sizes on safe stackable items (Default: true)"
+    },
+    "StackSize_MaxStack": {
+      "value": 9999,
+      "label": "Max Stack Size",
+      "control": "number",
+      "min": 1,
+      "max": 65535,
+      "step": 1,
+      "description": "Maximum stack size across safe stackable items up to 65,535 (never lowers items with larger native stacks)"
+    },
+    "Enable_LootTweaks": {
+      "value": false,
+      "label": "Master Switch: Loot Drop Multipliers",
+      "control": "toggle",
+      "description": "Enables or disables granular category loot drop multipliers across world pickups, chests, and enemies (Default: false)"
+    },
+    "Loot_WorldDropMultiplier": {
+      "value": "5.0",
+      "label": "Non-Scalable World Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for world loot drops not scaled by the difficulty slider (berries, honey, herbs, mushrooms) (Default: 1.0)"
+    },
+    "Loot_ScalableDropMultiplier": {
+      "value": "5.0",
+      "label": "Scalable World Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for scalable world loot drops (wood, stone, ores, plant fiber, resin, metal scraps) (Default: 1.0)"
+    },
+    "Loot_EnemyDropMultiplier": {
+      "value": "5.0",
+      "label": "Enemy & Wildlife Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for NPC, Enemy, and Wildlife drops (runes, shroud cores, raw meat, fur, bones) (Default: 1.0)"
+    },
+    "Loot_EquipmentDropMultiplier": {
+      "value": "1.0",
+      "label": "Equipment Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for non-scalable weapons, armor, shields, and rings inside chests/containers (Default: 1.0)"
+    },
+    "Loot_ConsumableDropMultiplier": {
+      "value": "5.0",
+      "label": "Consumable Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for potions, bandages, scrolls, flasks, and cooked/processed foods (Default: 1.0)"
+    },
+    "Loot_ExplosiveDropMultiplier": {
+      "value": "5.0",
+      "label": "Explosive Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for thrown grenades and explosive powder balls (Default: 1.0)"
+    },
+    "Loot_ArrowDropMultiplier": {
+      "value": "5.0",
+      "label": "Arrow Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for stackable player arrows and ammunition (Default: 1.0)"
+    },
+    "Loot_GemDropMultiplier": {
+      "value": "5.0",
+      "label": "Gem Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for socketable weapon gems (Default: 1.0)"
+    },
+    "Loot_BaitDropMultiplier": {
+      "value": "5.0",
+      "label": "Bait Drop Multiplier",
+      "control": "text",
+      "description": "Multiplier for world-found critter/fishing baits (Default: 1.0)"
+    },
+    "Loot_CollectibleDropMultiplier": {
+      "value": "1.0",
+      "label": "Collectibles Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for world collectibles, fossils, dyes, and music sheets (Default: 1.0)"
+    },
+    "Loot_GoldDropMultiplier": {
+      "value": "5.0",
+      "label": "Gold & Coins Loot Multiplier",
+      "control": "text",
+      "description": "Multiplier for Gold Coins across enemies, chests, and coin veins (Default: 1.0)"
+    },
+    "Enable_GemTweaks": {
+      "value": false,
+      "label": "Master Switch: Gem Salvage & Slots",
+      "control": "toggle",
+      "description": "Enables or disables gem salvage return rate and gem slot rarity probability tweaks (Default: false)"
+    },
+    "GemTweaks_SalvageRate": {
+      "value": "1.0",
+      "label": "Gem Salvage Rate (0.0 - 1.0)",
+      "control": "text",
+      "description": "Ratio of material returned when salvaging gems, clamped 0.0 to 1.0 (Default: 0.5)"
+    },
+    "GemTweaks_Probability_Common": {
+      "value": "1.0",
+      "label": "Gem Slot Prob (Common)",
+      "control": "text",
+      "description": "Probability (0.0 - 1.0) of a gem slot on common rarity items (Default: 0.0)"
+    },
+    "GemTweaks_Probability_Uncommon": {
+      "value": "1.0",
+      "label": "Gem Slot Prob (Uncommon)",
+      "control": "text",
+      "description": "Probability (0.0 - 1.0) of a gem slot on uncommon rarity items (Default: 0.05)"
+    },
+    "GemTweaks_Probability_Rare": {
+      "value": "1.0",
+      "label": "Gem Slot Prob (Rare)",
+      "control": "text",
+      "description": "Probability (0.0 - 1.0) of a gem slot on rare rarity items (Default: 0.25)"
+    },
+    "GemTweaks_Probability_Epic": {
+      "value": "1.0",
+      "label": "Gem Slot Prob (Epic)",
+      "control": "text",
+      "description": "Probability (0.0 - 1.0) of a gem slot on epic rarity items (Default: 0.5)"
+    },
+    "GemTweaks_Probability_Legendary": {
+      "value": "1.0",
+      "label": "Gem Slot Prob (Legendary)",
+      "control": "text",
+      "description": "Probability (0.0 - 1.0) of a gem slot on legendary rarity items (Default: 1.0)"
+    },
+    "Enable_CraftingTweaks": {
+      "value": true,
+      "label": "Master Switch: Crafting & Recipes",
+      "control": "toggle",
+      "description": "Enables or disables Creative Mode free crafting, infinite prop placement, recipe unlocks, free upgrades, and output multipliers."
+    },
+    "CraftingTweaks_CreativeMode": {
+      "value": true,
+      "label": "Creative Mode (Free Crafting & No NPC Shelter Req)",
+      "control": "toggle",
+      "description": "Removes crafting material costs and NPC shelter/bed/station requirements on general recipes (Default: false)"
+    },
+    "CraftingTweaks_InfinitePropPlacement": {
+      "value": true,
+      "label": "Infinite Prop & Furniture Placement (No Item Consumed)",
+      "control": "toggle",
+      "description": "Prevents placed chests, furniture, workbenches, altars, and props from being consumed out of your inventory when placed."
+    },
+    "CraftingTweaks_UnlockAllRecipes": {
+      "value": false,
+      "label": "Unlock All Recipes",
+      "control": "toggle",
+      "description": "Unlocks all crafting recipes and building blocks without requiring item discovery (Default: false)"
+    },
+    "CraftingTweaks_FreeFlameAltar": {
+      "value": true,
+      "label": "Free Flame Strengthening & Altar Upgrades",
+      "control": "toggle",
+      "description": "Makes Flame strengthening and Flame Altar tier upgrades completely free (Default: true)"
+    },
+    "CraftingTweaks_FreeFood": {
+      "value": false,
+      "label": "Free Food Crafting",
+      "control": "toggle",
+      "description": "Makes food and fish recipes free, independent of Creative Mode (Default: false)"
+    },
+    "CraftingTweaks_FreeFactories": {
+      "value": false,
+      "label": "Free Factories",
+      "control": "toggle",
+      "description": "Makes factory/refining station recipes free, independent of Creative Mode (Default: false)"
+    },
+    "CraftingTweaks_OutputMultiplier": {
+      "value": 1,
+      "label": "Crafting Output Multiplier",
+      "control": "number",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "description": "Increases crafted quantity yield on stackable outputs, e.g. 2 = double output (Default: 1)"
+    },
+    "Enable_SlotResetTool": {
+      "value": false,
+      "label": "Master Switch: Factory & Station Crusher",
+      "control": "toggle",
+      "description": "Allows 1-hit destruction of selected factories/furniture even when items are inside (Default: false)"
+    },
+    "Reset_Factory": {
+      "value": false,
+      "label": "Crush: Factories (Forge, Smelter, Kiln, Oven, Loom, Saw)",
+      "control": "toggle",
+      "description": "Allows Factories to be 1-hit breakable even when full (Default: false)"
+    },
+    "Reset_Production": {
+      "value": false,
+      "label": "Crush: Production Stations",
+      "control": "toggle",
+      "description": "Allows Production stations to be breakable (Default: false)"
+    },
+    "Reset_Farmbed": {
+      "value": false,
+      "label": "Crush: Farmbeds & Seedling Stations",
+      "control": "toggle",
+      "description": "Allows Garden and Seedling beds to be breakable (Default: false)"
+    },
+    "Reset_Beehive": {
+      "value": false,
+      "label": "Crush: Beehives & Honey Stations",
+      "control": "toggle",
+      "description": "Allows Beehives to be breakable (Default: false)"
+    },
+    "Reset_Furniture": {
+      "value": false,
+      "label": "Crush: Slotted Furniture",
+      "control": "toggle",
+      "description": "Allows slotted Furniture and non-chest decorative props to be breakable (Default: false)"
+    },
+    "Enable_Category_Movement": {
+      "value": true,
+      "label": "Master Switch: Movement, Jump & Slope Climbing",
+      "control": "toggle",
+      "description": "Enables or disables player template movement speed, jump height, and steep slope climbing tweaks."
+    },
+    "movementSpeedMultiplier": {
+      "value": 100,
+      "label": "Movement Speed % (Walking & Sprinting)",
       "control": "slider",
-      "min": 0,
-      "max": 9999,
-      "step": 50
+      "min": 100,
+      "max": 500,
+      "step": 10,
+      "description": "Patches player locomotion run & sprint speeds (100% = vanilla, up to 500%)."
+    },
+    "jumpHeightMultiplier": {
+      "value": 100,
+      "label": "Jump Height Multiplier %",
+      "control": "slider",
+      "min": 100,
+      "max": 500,
+      "step": 25,
+      "description": "Multiplies vertical jump launch height in player template (100% = vanilla, up to 500%)."
+    },
+    "Enable_SlopeTweaks": {
+      "value": true,
+      "label": "Slope Climbing Tweaks",
+      "control": "toggle",
+      "description": "Overrides slope climbing, sliding, and fall damage angles on player template (Default: true)"
+    },
+    "steepFloorAngle": {
+      "value": "89.0",
+      "label": "Steep Floor Angle",
+      "control": "text",
+      "description": "Angle at which terrain becomes difficult to walk up, max 89.0 (Default: 45.0)"
+    },
+    "slidingAngle": {
+      "value": "89.0",
+      "label": "Sliding Angle",
+      "control": "text",
+      "description": "Angle at which you start sliding off terrain, max 89.0 (Default: 55.0)"
+    },
+    "fallDamageAngle": {
+      "value": "89.0",
+      "label": "Fall Damage Angle",
+      "control": "text",
+      "description": "Angle at which fall damage calculation triggers when sliding, max 89.0 (Default: 65.0)"
+    },
+    "Enable_SkillTweaks_Updraft": {
+      "value": false,
+      "label": "Master Switch: Updraft Skill Tuning",
+      "control": "toggle",
+      "description": "Enables or disables custom Updraft glider boost impulse, duration, and mana cost tweaks (Default: false)"
+    },
+    "Updraft_IgnoreManaCost": {
+      "value": false,
+      "label": "Ignore Updraft Mana Cost",
+      "control": "toggle",
+      "description": "Disables Updraft mana cost completely (Default: false)"
+    },
+    "GroundRelative_Y": {
+      "value": "",
+      "label": "Ground Relative Y",
+      "control": "text",
+      "description": "Absolute Y/Upwards thrust, leave blank to keep default (Default: 22)"
+    },
+    "GroundRelative_X": {
+      "value": "",
+      "label": "Ground Relative X",
+      "control": "text",
+      "description": "Absolute X direction thrust, leave blank to keep default"
+    },
+    "GroundRelative_Z": {
+      "value": "",
+      "label": "Ground Relative Z",
+      "control": "text",
+      "description": "Absolute Z/Forward thrust, leave blank to keep default"
+    },
+    "PlayerRelative_X": {
+      "value": "",
+      "label": "Player Relative X",
+      "control": "text",
+      "description": "Right/Left thrust relative to player yaw/roll, leave blank to keep default"
+    },
+    "PlayerRelative_Y": {
+      "value": "",
+      "label": "Player Relative Y",
+      "control": "text",
+      "description": "Up/Down thrust relative to player pitch/yaw, leave blank to keep default"
+    },
+    "PlayerRelative_Z": {
+      "value": "",
+      "label": "Player Relative Z",
+      "control": "text",
+      "description": "Forward/Backward thrust relative to player pitch/yaw, leave blank to keep default"
+    },
+    "Boost_Duration": {
+      "value": "",
+      "label": "Boost Duration (s)",
+      "control": "text",
+      "description": "Duration of the updraft boost in seconds, leave blank to keep default (Default: 2.25)"
+    },
+    "Updraft_ManaCost_Value": {
+      "value": "",
+      "label": "Updraft Mana Cost",
+      "control": "text",
+      "description": "Manually override Updraft mana cost value, leave blank to keep default"
+    },
+    "Enable_Category_Map": {
+      "value": true,
+      "label": "Master Switch: Map, Fast Travel & Fog of War",
+      "control": "toggle",
+      "description": "Enables or disables custom Fast Travel destination categories and Map Fog of War discovery radius."
+    },
+    "Enable_FastTravelTweaks": {
+      "value": true,
+      "label": "Fast Travel Marker Tweaks",
+      "control": "toggle",
+      "description": "Adds fast travel teleportation to selected map marker categories (Default: true)"
+    },
+    "FastTravel_FlameMarkers": {
+      "value": true,
+      "label": "Fast Travel: Flame Sanctums & Shrines",
+      "control": "toggle",
+      "description": "Enable fast travel to Flame Sanctums and Shrines (Default: true)"
+    },
+    "FastTravel_DungeonMarkers": {
+      "value": true,
+      "label": "Fast Travel: Dungeons & Hollow Halls",
+      "control": "toggle",
+      "description": "Enable fast travel to Dungeons, Elixir Wells, and Hollow Halls (Default: true)"
+    },
+    "FastTravel_LocationMarkers": {
+      "value": true,
+      "label": "Fast Travel: Locations, Towns & Mines",
+      "control": "toggle",
+      "description": "Enable fast travel to Towns, Mines, and Farms (Default: true)"
+    },
+    "FastTravel_None": {
+      "value": false,
+      "label": "Fast Travel: Quest Markers",
+      "control": "toggle",
+      "description": "Enable fast travel to discovered Quest markers (Default: false)"
+    },
+    "Enable_FogOfWarTweaks": {
+      "value": false,
+      "label": "Fog of War Discovery Range Tweak",
+      "control": "toggle",
+      "description": "Overrides map Fog of War discovery radius (Default: false)"
+    },
+    "FogOfWar_Range": {
+      "value": 600,
+      "label": "Fog of War Range",
+      "control": "number",
+      "min": 50,
+      "max": 5000,
+      "step": 1,
+      "description": "Fog of war clearing radius on the map (Default: 300)"
+    },
+    "Enable_Category_AltarsBase": {
+      "value": true,
+      "label": "Master Switch: Flame Altars & Base Size",
+      "control": "toggle",
+      "description": "Enables or disables Flame Altar capacity limits, unlimited altars, and 20m-chunk-snapped build zone size multipliers."
+    },
+    "Enable_FlameAltarTweaks": {
+      "value": false,
+      "label": "Flame Altar Capacity Multiplier (Capped at 16)",
+      "control": "toggle",
+      "description": "Scales buildable Flame Altars per flame level up to Unified Tweaks' cap of 16 (Default: false)"
+    },
+    "MaxFlameAltars_Multiplier": {
+      "value": 2,
+      "label": "Flame Altar Multiplier",
+      "control": "number",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "description": "Multiplies buildable Flame Altars per flame level up to 16 (Default: 2)"
+    },
+    "unlimitedFlameAltars": {
+      "value": true,
+      "label": "Unlimited Flame Altars (255 Cap & No Slot Req)",
+      "control": "toggle",
+      "description": "Sets maximum active Flame Altars to 255 and removes altar slot requirements on Flame Altar items."
+    },
+    "Enable_BaseSizeTweaks": {
+      "value": false,
+      "label": "Base Build-Zone Size Multiplier",
+      "control": "toggle",
+      "description": "Scales Flame Altar build zone boundaries snapped safely to 20m voxel chunks (Default: false)"
+    },
+    "BaseSize_Multiplier": {
+      "value": "1.5",
+      "label": "Base Size Multiplier",
+      "control": "text",
+      "description": "Multiplies X, Y, Z dimensions of Flame Altar build zones up to 3.0x, snapped to 20m voxel chunks (Default: 1.5)"
+    },
+    "Enable_Category_BuildingPlacement": {
+      "value": false,
+      "label": "Master Switch: Building & Placement Rules",
+      "control": "toggle",
+      "description": "Enables or disables world No-Build Zone removal and unrestricted building placement rules (Default: false)"
+    },
+    "Enable_BuildingTweaks": {
+      "value": false,
+      "label": "Remove World No-Build Zones",
+      "control": "toggle",
+      "description": "Allows placing Flame Altars inside restricted 'No Build Zones' in the game world (Default: false)"
+    },
+    "Enable_PlacementTweaks": {
+      "value": false,
+      "label": "Placement Rule Tweaks",
+      "control": "toggle",
+      "description": "Enables the custom placement rule sub-toggles below (Default: false)"
+    },
+    "PlacementTweaks_BuildInFog": {
+      "value": false,
+      "label": "Build in Shroud Fog",
+      "control": "toggle",
+      "description": "Allows building placement directly inside Shroud fog (Default: false)"
+    },
+    "PlacementTweaks_NoBuildZoneNeeded": {
+      "value": false,
+      "label": "No Build Zone Needed",
+      "control": "toggle",
+      "description": "Allows temporary placement of objects outside Flame Altar zones (objects outside Altar zones do not persist on reload) (Default: false)"
+    },
+    "PlacementTweaks_IgnoreEnemies": {
+      "value": false,
+      "label": "Place Near Enemies",
+      "control": "toggle",
+      "description": "Allows placing Flame Altars and objects even when enemies are nearby (Default: false)"
+    },
+    "PlacementTweaks_IgnoreFreeSpace": {
+      "value": false,
+      "label": "Ignore Free Space & Surface Checks",
+      "control": "toggle",
+      "description": "Removes 'Not enough free space', collider, water, and surface topology checks (Default: false)"
+    },
+    "PlacementTweaks_UnlockTiltAngles": {
+      "value": false,
+      "label": "Unlock Placement Tilt & Rotation Angles",
+      "control": "toggle",
+      "description": "Requires 'Ignore Free Space & Surface Checks' enabled. Unlocks 180° tilt and free X/Y/Z axis rotation (Default: false)"
+    },
+    "Enable_FogTweaks": {
+      "value": false,
+      "label": "Master Switch: Fog & Weather Visibility",
+      "control": "toggle",
+      "description": "Enables or disables world distance fog, weather storm haze, and Blue/Red Shroud visibility multipliers (Default: false)"
+    },
+    "Fog_WorldHaze_Multiplier": {
+      "value": "0.35",
+      "label": "World & Distance Fog Multiplier",
+      "control": "text",
+      "description": "Multiplies standard distance fog and height fog. 1.0 = Vanilla, 0.35 = Clearer views, 0.0 = No distance fog"
+    },
+    "Fog_WeatherHaze_Multiplier": {
+      "value": "0.1",
+      "label": "Weather Haze Multiplier (Rain / Snow / Blizzard)",
+      "control": "text",
+      "description": "Multiplies visual fog/haze during rain, snow, and blizzards. 1.0 = Vanilla, 0.1 = Clear storm visibility"
+    },
+    "Fog_BlueShroud_Multiplier": {
+      "value": "0.6",
+      "label": "Blue Shroud Fog Multiplier (Dangerous Shroud)",
+      "control": "text",
+      "description": "Multiplies Blue Shroud fog density, opacity, and boundary walls. 1.0 = Vanilla, 0.6 = 40% clearer"
+    },
+    "Fog_RedShroud_Multiplier": {
+      "value": "0.6",
+      "label": "Red Shroud Fog Multiplier (Deadly Shroud)",
+      "control": "text",
+      "description": "Multiplies Red Shroud fog density, opacity, and boundary walls. 1.0 = Vanilla, 0.6 = 40% clearer"
+    },
+    "Enable_GliderTuning": {
+      "value": false,
+      "label": "Master Switch: Glider Physics",
+      "control": "toggle",
+      "description": "Enables or disables per-tier (T1-T4) glider speed, air resistance, and turn rate tuning (Default: false)"
+    },
+    "Glider_T1_accelerationForward": {
+      "value": "0.85",
+      "label": "T1 Acceleration",
+      "control": "text",
+      "description": "Forward acceleration (Default: 0.8)"
+    },
+    "Glider_T1_airResistanceLongitudinal": {
+      "value": "0.32",
+      "label": "T1 Forward Friction",
+      "control": "text",
+      "description": "Forward air resistance, lower = faster (Default: 0.39)"
+    },
+    "Glider_T1_airResistanceLateral": {
+      "value": "2.0",
+      "label": "T1 Side Friction",
+      "control": "text",
+      "description": "Horizontal air resistance (Default: 1.8)"
+    },
+    "Glider_T1_airResistanceVertical": {
+      "value": "0.85",
+      "label": "T1 Vertical Resistance",
+      "control": "text",
+      "description": "Vertical resistance, higher = lose altitude slower (Default: 0.71)"
+    },
+    "Glider_T1_yawAngleSpeed": {
+      "value": "80.0",
+      "label": "T1 Turn Rate",
+      "control": "text",
+      "description": "Yaw turn speed (Default: 70.0)"
+    },
+    "Glider_T1_pitchAngleSpeed": {
+      "value": "90.0",
+      "label": "T1 Pitch Rate",
+      "control": "text",
+      "description": "Pitch up/down speed (Default: 85.0)"
+    },
+    "Glider_T1_rollAngleSpeed": {
+      "value": "160.0",
+      "label": "T1 Roll Rate",
+      "control": "text",
+      "description": "Bank angle speed (Default: 160.0)"
+    },
+    "Glider_T2_accelerationForward": {
+      "value": "0.95",
+      "label": "T2 Acceleration",
+      "control": "text",
+      "description": "Forward acceleration (Default: 0.9)"
+    },
+    "Glider_T2_airResistanceLongitudinal": {
+      "value": "0.24",
+      "label": "T2 Forward Friction",
+      "control": "text",
+      "description": "Forward air resistance, lower = faster (Default: 0.26)"
+    },
+    "Glider_T2_airResistanceLateral": {
+      "value": "1.75",
+      "label": "T2 Side Friction",
+      "control": "text",
+      "description": "Horizontal air resistance (Default: 1.7)"
+    },
+    "Glider_T2_airResistanceVertical": {
+      "value": "1.35",
+      "label": "T2 Vertical Resistance",
+      "control": "text",
+      "description": "Vertical resistance, higher = lose altitude slower (Default: 0.95)"
+    },
+    "Glider_T2_yawAngleSpeed": {
+      "value": "70.0",
+      "label": "T2 Turn Rate",
+      "control": "text",
+      "description": "Yaw turn speed (Default: 65.0)"
+    },
+    "Glider_T2_pitchAngleSpeed": {
+      "value": "85.0",
+      "label": "T2 Pitch Rate",
+      "control": "text",
+      "description": "Pitch up/down speed (Default: 80.0)"
+    },
+    "Glider_T2_rollAngleSpeed": {
+      "value": "165.0",
+      "label": "T2 Roll Rate",
+      "control": "text",
+      "description": "Bank angle speed (Default: 155.0)"
+    },
+    "Glider_T3_accelerationForward": {
+      "value": "1.0",
+      "label": "T3 Acceleration",
+      "control": "text",
+      "description": "Forward acceleration (Default: 1.0)"
+    },
+    "Glider_T3_airResistanceLongitudinal": {
+      "value": "0.16",
+      "label": "T3 Forward Friction",
+      "control": "text",
+      "description": "Forward air resistance, lower = faster (Default: 0.215)"
+    },
+    "Glider_T3_airResistanceLateral": {
+      "value": "1.5",
+      "label": "T3 Side Friction",
+      "control": "text",
+      "description": "Horizontal air resistance (Default: 1.6)"
+    },
+    "Glider_T3_airResistanceVertical": {
+      "value": "1.85",
+      "label": "T3 Vertical Resistance",
+      "control": "text",
+      "description": "Vertical resistance, higher = lose altitude slower (Default: 1.6)"
+    },
+    "Glider_T3_yawAngleSpeed": {
+      "value": "60.0",
+      "label": "T3 Turn Rate",
+      "control": "text",
+      "description": "Yaw turn speed (Default: 60.0)"
+    },
+    "Glider_T3_pitchAngleSpeed": {
+      "value": "80.0",
+      "label": "T3 Pitch Rate",
+      "control": "text",
+      "description": "Pitch up/down speed (Default: 75.0)"
+    },
+    "Glider_T3_rollAngleSpeed": {
+      "value": "150.0",
+      "label": "T3 Roll Rate",
+      "control": "text",
+      "description": "Bank angle speed (Default: 150.0)"
+    },
+    "Glider_T4_REWARD_accelerationForward": {
+      "value": "1.0",
+      "label": "T4 Acceleration",
+      "control": "text",
+      "description": "Forward acceleration (Default: 1.0)"
+    },
+    "Glider_T4_REWARD_airResistanceLongitudinal": {
+      "value": "0.08",
+      "label": "T4 Forward Friction",
+      "control": "text",
+      "description": "Forward air resistance, lower = faster (Default: 0.155)"
+    },
+    "Glider_T4_REWARD_airResistanceLateral": {
+      "value": "1.25",
+      "label": "T4 Side Friction",
+      "control": "text",
+      "description": "Horizontal air resistance (Default: 1.5)"
+    },
+    "Glider_T4_REWARD_airResistanceVertical": {
+      "value": "2.35",
+      "label": "T4 Vertical Resistance",
+      "control": "text",
+      "description": "Vertical resistance, higher = lose altitude slower (Default: 3.0)"
+    },
+    "Glider_T4_REWARD_yawAngleSpeed": {
+      "value": "50.0",
+      "label": "T4 Turn Rate",
+      "control": "text",
+      "description": "Yaw turn speed (Default: 55.0)"
+    },
+    "Glider_T4_REWARD_pitchAngleSpeed": {
+      "value": "75.0",
+      "label": "T4 Pitch Rate",
+      "control": "text",
+      "description": "Pitch up/down speed (Default: 70.0)"
+    },
+    "Glider_T4_REWARD_rollAngleSpeed": {
+      "value": "145.0",
+      "label": "T4 Roll Rate",
+      "control": "text",
+      "description": "Bank angle speed (Default: 100.0)"
+    },
+    "Enable_Category_Terraforming": {
+      "value": false,
+      "label": "Master Switch: Terraforming & Voxel Drops",
+      "control": "toggle",
+      "description": "Enables or disables breakable unbreakable terrain, rake anywhere, and voxel terrain drop rates (Default: false)"
+    },
+    "MakeUnbreakableBreakable": {
+      "value": false,
+      "label": "Make Unbreakable Terrain Breakable",
+      "control": "toggle",
+      "description": "Changes Unbreakable terrain materials to Hard so they can be mined/excavated (Default: false)"
     },
     "rakeAnywhere": {
       "value": false,
       "label": "Terraform Rake Everywhere (No Base Required)",
-      "description": "Clears build-zone restrictions on rakes. Allows terraforming and leveling terrain anywhere in the world.",
-      "control": "checkbox"
+      "control": "toggle",
+      "description": "Clears build-zone and fog restrictions on rakes so you can level terrain anywhere."
     },
-    "cheatBestBackpack": {
-      "value": true,
-      "label": "Unlock Best Tier 3 Backpack Recipe",
-      "description": "Redirects backpack crafting recipes to create the Tier 3 +32 slot backpack for 1 simple ingredient. Requires game restart.",
-      "control": "checkbox"
+    "Enable_TerrainDropTweaks": {
+      "value": false,
+      "label": "Terrain Drop Rate Tweaks",
+      "control": "toggle",
+      "description": "Enables terrain item drop modification per mined voxel (Default: false)"
     },
-    "fastTravelAllMarkers": {
-      "value": true,
-      "label": "Fast Travel to All Map Markers",
-      "description": "Unlocks direct fast travel teleportation to all shrines, obelisks, dungeons, and POIs across the map. Requires game restart.",
-      "control": "checkbox"
+    "TerrainDrop_ExchangeRate": {
+      "value": "1.0",
+      "label": "Terrain Drop Rate (0.0 - 1.0)",
+      "control": "text",
+      "description": "1.0 = Full 1:1 drop rate per voxel, clamped to max 1.0 (Default: 0.2)"
     },
-    "freeSkillTree": {
-      "value": true,
-      "label": "Free Skill Tree Node Perks",
-      "description": "Sets skill point costs of all skill tree nodes to 0 and grants bonus SP per level in BalancingTable. Requires game restart.",
-      "control": "checkbox"
+    "Enable_ExpandedGameSettings": {
+      "value": false,
+      "label": "Master Switch: Expanded Difficulty Sliders",
+      "control": "toggle",
+      "description": "Expands world difficulty UI slider steps and backend server min/max presets (Default: false)"
     },
-    "freeRecipeCrafting": {
-      "value": true,
-      "label": "Free Workbench & Hand Crafting (Zero Ingredients)",
-      "description": "Sets all ingredient and material requirements to 0 for crafting recipes across workbenches, crafting stations, and hand crafting. Requires launcher preparation / restart.",
-      "control": "checkbox"
+    "EGS_Standard": {
+      "value": "0.10, 0.25, 0.50, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0",
+      "label": "Standard Multiplier Steps",
+      "control": "text",
+      "description": "Comma-separated difficulty multipliers (e.g. 0.1, 0.5, 1.0, 2.0 ... 20.0)"
     },
-    "itemAmountMultiplier": {
-      "value": 100,
-      "label": "Resource Drop & Yield Multiplier (KFC Asset Pass)",
-      "description": "Scales item quantities dropped from harvesting (bushes, plants, trees), mining ore veins, world pickups, chests, and enemy loot tables (1x to 100x). Requires launcher preparation / restart.",
-      "control": "slider",
-      "min": 1,
-      "max": 100,
-      "step": 1
+    "EGS_XP": {
+      "value": "0.00, 0.10, 0.25, 0.50, 0.75, 1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0",
+      "label": "XP Multiplier Steps",
+      "control": "text",
+      "description": "Comma-separated XP multipliers (e.g. 0.0, 0.5, 1.0, 2.0 ... 20.0)"
+    },
+    "EGS_Time": {
+      "value": "1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20.0, 30.0, 45.0, 60.0, 120.0, 180.0, 240.0, 360.0, 480.0",
+      "label": "Time Duration Steps (Minutes)",
+      "control": "text",
+      "description": "Comma-separated time values in minutes for day, night, and starving timers"
+    },
+    "Log_Level": {
+      "value": 1,
+      "label": "Log Verbosity Level",
+      "control": "number",
+      "min": 0,
+      "max": 2,
+      "step": 1,
+      "description": "Controls log detail level in ShroudForge logs: 0 = Mute, 1 = Summary Logs, 2 = Detailed Item Logs (Default: 1)"
     }
   },
   "groups": [
     {
-      "label": "Movement & Physics Patches",
-      "description": "Static player template locomotion patches applied on game startup.",
+      "label": "Cinematics",
+      "description": "Skip startup logo animations and fade delays.",
       "settings": [
+        "Enable_NoIntroVideo"
+      ]
+    },
+    {
+      "label": "Levels & Skill Tree",
+      "description": "Player & item level caps, skill points per level, and zero-cost skill tree perks.",
+      "settings": [
+        "Enable_Category_LevelsSkills",
+        "Enable_PlayerItemLevelTweaks",
+        "Enable_ItemLevelCapSync",
+        "PlayerLevelCap",
+        "ItemLevelCap",
+        "SkillPointsPerLevel",
+        "freeSkillTree"
+      ]
+    },
+    {
+      "label": "Attribute Scaling",
+      "description": "Health per Constitution, Mana per Spirit, Stamina per Endurance, and damage bonus per attribute point.",
+      "settings": [
+        "Enable_AttributeScaling",
+        "AttributeScaling_HealthPerCon",
+        "AttributeScaling_ManaPerSpi",
+        "AttributeScaling_StaminaPerEnd",
+        "AttributeScaling_DamagePerAttr"
+      ]
+    },
+    {
+      "label": "Player Base Stats & Comfort",
+      "description": "Base Health, Mana, Stamina, Oxygen, Shroud resistance duration, and Shelter Comfort rested buff scaling.",
+      "settings": [
+        "Enable_Category_BaseStats",
+        "Enable_PlayerBaseStats",
+        "PlayerBase_Health",
+        "PlayerBase_Mana",
+        "PlayerBase_Stamina",
+        "PlayerBase_Oxygen",
+        "PlayerBase_FogResistance",
+        "PlayerFog_PerFlameLevel",
+        "comfortBuffMultiplier"
+      ]
+    },
+    {
+      "label": "Item Level Minimums",
+      "description": "Force dropped weapons, armor, shields, gems, rings, spells, arrows, tools, and misc items to minimum levels.",
+      "settings": [
+        "Enable_ItemLevelMinimums",
+        "Enable_ItemLevelMin_Weapon",
+        "ItemLevelMin_Weapon",
+        "Enable_ItemLevelMin_Armor",
+        "ItemLevelMin_Armor",
+        "Enable_ItemLevelMin_Shield",
+        "ItemLevelMin_Shield",
+        "Enable_ItemLevelMin_Gem",
+        "ItemLevelMin_Gem",
+        "Enable_ItemLevelMin_Ring",
+        "ItemLevelMin_Ring",
+        "Enable_ItemLevelMin_Spell",
+        "ItemLevelMin_Spell",
+        "Enable_ItemLevelMin_Arrow",
+        "ItemLevelMin_Arrow",
+        "Enable_ItemLevelMin_Tool",
+        "ItemLevelMin_Tool",
+        "Enable_ItemLevelMin_Misc",
+        "ItemLevelMin_Misc"
+      ]
+    },
+    {
+      "label": "Weapon & Spell Damage",
+      "description": "Multipliers for 1H/2H melee, bows, bow draw speed, wands, arrows, and spells.",
+      "settings": [
+        "Enable_DamageTweaks",
+        "DamageMult_Melee1H",
+        "DamageMult_Melee2H",
+        "DamageMult_Range",
+        "BowDrawSpeed_Multiplier",
+        "DamageMult_Wand",
+        "DamageMult_Arrow",
+        "DamageMult_Spell"
+      ]
+    },
+    {
+      "label": "Harvesting Tool Damage",
+      "description": "Dedicated wood and stone/terrain harvesting multipliers for Felling Axes and Pickaxes.",
+      "settings": [
+        "Enable_ToolTweaks",
+        "ToolMult_Axe",
+        "ToolMult_Pickaxe"
+      ]
+    },
+    {
+      "label": "Gear Stats & Regen",
+      "description": "Multipliers for Health, Mana, and Stamina regeneration and flat stat bonuses on Armor and Rings.",
+      "settings": [
+        "Enable_GearStatTweaks",
+        "RegenMult_Health",
+        "RegenMult_Mana",
+        "RegenMult_Stamina",
+        "GearMult_HealthBonus",
+        "GearMult_StaminaBonus",
+        "GearMult_ManaBonus"
+      ]
+    },
+    {
+      "label": "Spell Casting & Mana Cost",
+      "description": "Multipliers for spell charge/cast duration and spell mana consumption.",
+      "settings": [
+        "Enable_SpellTweaks",
+        "SpellCastTime_Multiplier",
+        "SpellManaCost_Multiplier"
+      ]
+    },
+    {
+      "label": "Backpack & Chest Storage",
+      "description": "Backpack slot expansion, storage chest slot multipliers, and Extended Magic Storage for furniture & factories.",
+      "settings": [
+        "Enable_Category_Storage",
+        "Enable_BackpackTweaks",
+        "Backpack_SlotMultiplier",
+        "Enable_ChestSizeTweaks",
+        "Chest_MaxSlots",
+        "Chest_SlotMultiplier",
+        "Enable_MagicFurniture",
+        "Enable_MagicFactories"
+      ]
+    },
+    {
+      "label": "Item Stack Sizes",
+      "description": "Override maximum stack sizes up to 65,535 across all safe stackable items.",
+      "settings": [
+        "Enable_StackSizeTweaks",
+        "StackSize_MaxStack"
+      ]
+    },
+    {
+      "label": "Loot Drop Multipliers",
+      "description": "Granular drop multipliers for non-scalable/scalable world loot, enemies, equipment, consumables, explosives, arrows, gems, bait, collectibles, and gold.",
+      "settings": [
+        "Enable_LootTweaks",
+        "Loot_WorldDropMultiplier",
+        "Loot_ScalableDropMultiplier",
+        "Loot_EnemyDropMultiplier",
+        "Loot_EquipmentDropMultiplier",
+        "Loot_ConsumableDropMultiplier",
+        "Loot_ExplosiveDropMultiplier",
+        "Loot_ArrowDropMultiplier",
+        "Loot_GemDropMultiplier",
+        "Loot_BaitDropMultiplier",
+        "Loot_CollectibleDropMultiplier",
+        "Loot_GoldDropMultiplier"
+      ]
+    },
+    {
+      "label": "Gem Salvage & Slots",
+      "description": "Gem salvage return rate and gem socket probabilities by item rarity.",
+      "settings": [
+        "Enable_GemTweaks",
+        "GemTweaks_SalvageRate",
+        "GemTweaks_Probability_Common",
+        "GemTweaks_Probability_Uncommon",
+        "GemTweaks_Probability_Rare",
+        "GemTweaks_Probability_Epic",
+        "GemTweaks_Probability_Legendary"
+      ]
+    },
+    {
+      "label": "Crafting & Recipes",
+      "description": "Creative Mode zero-cost crafting, infinite prop placement, unlock all recipes, free Flame/Food/Factories, and output multipliers.",
+      "settings": [
+        "Enable_CraftingTweaks",
+        "CraftingTweaks_CreativeMode",
+        "CraftingTweaks_InfinitePropPlacement",
+        "CraftingTweaks_UnlockAllRecipes",
+        "CraftingTweaks_FreeFlameAltar",
+        "CraftingTweaks_FreeFood",
+        "CraftingTweaks_FreeFactories",
+        "CraftingTweaks_OutputMultiplier"
+      ]
+    },
+    {
+      "label": "Factory & Station Crusher",
+      "description": "Make selected factories, production stations, farmbeds, beehives, and slotted furniture 1-hit breakable even when full.",
+      "settings": [
+        "Enable_SlotResetTool",
+        "Reset_Factory",
+        "Reset_Production",
+        "Reset_Farmbed",
+        "Reset_Beehive",
+        "Reset_Furniture"
+      ]
+    },
+    {
+      "label": "Movement, Jump & Slope Climbing",
+      "description": "Player template run/sprint speed, jump height, and steep cliff/mountain slope climbing angles.",
+      "settings": [
+        "Enable_Category_Movement",
         "movementSpeedMultiplier",
         "jumpHeightMultiplier",
-        "noSlopeSlide"
+        "Enable_SlopeTweaks",
+        "steepFloorAngle",
+        "slidingAngle",
+        "fallDamageAngle"
       ]
     },
     {
-      "label": "Base Building & Altar Patches",
-      "description": "Flame Altar radius, placement count, free upgrades, free building and prop placement, comfort buff, and terraforming tools.",
+      "label": "Updraft Skill Tuning",
+      "description": "Customize Updraft glider boost directional thrust, duration, and mana cost.",
       "settings": [
-        "altarBuildRadiusMultiplier",
+        "Enable_SkillTweaks_Updraft",
+        "Updraft_IgnoreManaCost",
+        "GroundRelative_Y",
+        "GroundRelative_X",
+        "GroundRelative_Z",
+        "PlayerRelative_X",
+        "PlayerRelative_Y",
+        "PlayerRelative_Z",
+        "Boost_Duration",
+        "Updraft_ManaCost_Value"
+      ]
+    },
+    {
+      "label": "Map, Fast Travel & Fog of War",
+      "description": "Unlock fast travel to Flame shrines, dungeons, towns/locations, and quest markers, plus map Fog of War range.",
+      "settings": [
+        "Enable_Category_Map",
+        "Enable_FastTravelTweaks",
+        "FastTravel_FlameMarkers",
+        "FastTravel_DungeonMarkers",
+        "FastTravel_LocationMarkers",
+        "FastTravel_None",
+        "Enable_FogOfWarTweaks",
+        "FogOfWar_Range"
+      ]
+    },
+    {
+      "label": "Flame Altars & Base Size",
+      "description": "Flame Altar count multiplier, unlimited 255 altars, and 20m-chunk-snapped build zone expansion.",
+      "settings": [
+        "Enable_Category_AltarsBase",
+        "Enable_FlameAltarTweaks",
+        "MaxFlameAltars_Multiplier",
         "unlimitedFlameAltars",
-        "freeFlameUpgrades",
-        "freeBuilding",
-        "comfortBuffMultiplier",
-        "rakeAnywhere"
+        "Enable_BaseSizeTweaks",
+        "BaseSize_Multiplier"
       ]
     },
     {
-      "label": "Inventory, Storage & Crafting",
-      "description": "Max item stack sizes up to 9,999, 160 chest slots, best backpack recipe, and free recipe crafting.",
+      "label": "Building & Placement Rules",
+      "description": "Remove world No-Build Zones, build in Shroud fog, place near enemies, ignore space checks, and unlock tilt/rotation.",
       "settings": [
-        "maxStackSize",
-        "extraChestSlots",
-        "cheatBestBackpack",
-        "freeRecipeCrafting",
-        "itemAmountMultiplier"
+        "Enable_Category_BuildingPlacement",
+        "Enable_BuildingTweaks",
+        "Enable_PlacementTweaks",
+        "PlacementTweaks_BuildInFog",
+        "PlacementTweaks_NoBuildZoneNeeded",
+        "PlacementTweaks_IgnoreEnemies",
+        "PlacementTweaks_IgnoreFreeSpace",
+        "PlacementTweaks_UnlockTiltAngles"
       ]
     },
     {
-      "label": "Progression & Travel Patches",
-      "description": "Fast travel destination flags, extended base shroud timer, and free skill tree nodes.",
+      "label": "Fog & Weather Visibility",
+      "description": "Scale world distance haze, rain/snow/blizzard haze, and Blue/Red Shroud fog visibility.",
       "settings": [
-        "fastTravelAllMarkers",
-        "shroudTimeMultiplier",
-        "freeSkillTree"
+        "Enable_FogTweaks",
+        "Fog_WorldHaze_Multiplier",
+        "Fog_WeatherHaze_Multiplier",
+        "Fog_BlueShroud_Multiplier",
+        "Fog_RedShroud_Multiplier"
+      ]
+    },
+    {
+      "label": "Glider Physics",
+      "description": "Per-tier (T1-T4) glider forward acceleration, air resistance, and pitch/yaw/roll rates.",
+      "settings": [
+        "Enable_GliderTuning",
+        "Glider_T1_accelerationForward",
+        "Glider_T1_airResistanceLongitudinal",
+        "Glider_T1_airResistanceLateral",
+        "Glider_T1_airResistanceVertical",
+        "Glider_T1_yawAngleSpeed",
+        "Glider_T1_pitchAngleSpeed",
+        "Glider_T1_rollAngleSpeed",
+        "Glider_T2_accelerationForward",
+        "Glider_T2_airResistanceLongitudinal",
+        "Glider_T2_airResistanceLateral",
+        "Glider_T2_airResistanceVertical",
+        "Glider_T2_yawAngleSpeed",
+        "Glider_T2_pitchAngleSpeed",
+        "Glider_T2_rollAngleSpeed",
+        "Glider_T3_accelerationForward",
+        "Glider_T3_airResistanceLongitudinal",
+        "Glider_T3_airResistanceLateral",
+        "Glider_T3_airResistanceVertical",
+        "Glider_T3_yawAngleSpeed",
+        "Glider_T3_pitchAngleSpeed",
+        "Glider_T3_rollAngleSpeed",
+        "Glider_T4_REWARD_accelerationForward",
+        "Glider_T4_REWARD_airResistanceLongitudinal",
+        "Glider_T4_REWARD_airResistanceLateral",
+        "Glider_T4_REWARD_airResistanceVertical",
+        "Glider_T4_REWARD_yawAngleSpeed",
+        "Glider_T4_REWARD_pitchAngleSpeed",
+        "Glider_T4_REWARD_rollAngleSpeed"
+      ]
+    },
+    {
+      "label": "Terraforming & Voxel Drops",
+      "description": "Mine unbreakable terrain materials, rake anywhere without an altar, and configure voxel drop rates.",
+      "settings": [
+        "Enable_Category_Terraforming",
+        "MakeUnbreakableBreakable",
+        "rakeAnywhere",
+        "Enable_TerrainDropTweaks",
+        "TerrainDrop_ExchangeRate"
+      ]
+    },
+    {
+      "label": "Expanded Difficulty Sliders",
+      "description": "Expand world difficulty UI slider steps and server preset min/max bounds.",
+      "settings": [
+        "Enable_ExpandedGameSettings",
+        "EGS_Standard",
+        "EGS_XP",
+        "EGS_Time"
+      ]
+    },
+    {
+      "label": "Logging & Diagnostics",
+      "description": "Configure startup preparation log verbosity.",
+      "settings": [
+        "Log_Level"
       ]
     }
   ]
