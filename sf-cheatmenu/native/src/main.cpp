@@ -82,6 +82,30 @@ static std::atomic<int> g_hover_speed_multiplier{100};
 static std::atomic<int> g_hover_ascend_vk{'R'};
 static std::atomic<int> g_hover_descend_vk{'F'};
 static void* g_hover_trampoline = nullptr;
+static void* g_backpack_ui_trampoline = nullptr;
+static sf_native::MemoryPatch g_backpack_ui_patch;
+static bool g_backpack_ui_patch_active = false;
+
+/**
+ * Dynamically scales the RUCKSACK (backpackRoot) slot size when total player
+ * backpack slots exceed the vanilla 7-row (56-slot) layout budget so the
+ * 2-row Actionbar (Schnellzugriffsleiste) below the backpack grid never gets
+ * pushed off the bottom edge of the screen.
+ */
+extern "C" float ComputeBackpackSlotSize(uint64_t totalSlots) {
+    if (totalSlots <= 48) {
+        return 100.0f;
+    }
+    if (totalSlots <= 56) {
+        return 90.0f;
+    }
+    uint64_t rows = (totalSlots + 7) / 8;
+    float fitted = 800.0f / static_cast<float>(rows + 2);
+    if (fitted < 40.0f) {
+        fitted = 40.0f;
+    }
+    return fitted;
+}
 
 extern "C" void HandleCreativeHover(float* pPosZ, float computedNewZ) {
     if (!g_creative_hover_enabled.load()) {
@@ -178,6 +202,72 @@ static std::vector<uint8_t> create_hover_trampoline(uintptr_t handler_addr) {
         0x0F, 0x28, 0x4C, 0x24, 0x10,       // movaps xmm1, [rsp+0x10]
         0x0F, 0x28, 0x04, 0x24,             // movaps xmm0, [rsp]
         0x48, 0x83, 0xC4, 0x40,             // add rsp, 0x40
+
+        // Restore GPRs
+        0x41, 0x5B,                         // pop r11
+        0x41, 0x5A,                         // pop r10
+        0x41, 0x59,                         // pop r9
+        0x41, 0x58,                         // pop r8
+        0x5A,                               // pop rdx
+        0x59,                               // pop rcx
+        0x58,                               // pop rax
+
+        0xC3                                // ret
+    };
+
+    code.insert(code.end(), tail.begin(), tail.end());
+    return code;
+}
+
+static std::vector<uint8_t> create_backpack_ui_trampoline(uintptr_t handler_addr) {
+    std::vector<uint8_t> code = {
+        // Save volatile GPRs (7 * 8 = 56 bytes; entry RSP % 16 == 8 -> now 16-byte aligned)
+        0x50,                               // push rax
+        0x51,                               // push rcx
+        0x52,                               // push rdx
+        0x41, 0x50,                         // push r8
+        0x41, 0x51,                         // push r9
+        0x41, 0x52,                         // push r10
+        0x41, 0x53,                         // push r11
+
+        // Save volatile XMM0-XMM5 (0x60 = 96 bytes, maintains 16-byte alignment)
+        0x48, 0x83, 0xEC, 0x60,             // sub rsp, 0x60
+        0x0F, 0x29, 0x04, 0x24,             // movaps [rsp], xmm0
+        0x0F, 0x29, 0x4C, 0x24, 0x10,       // movaps [rsp+0x10], xmm1
+        0x0F, 0x29, 0x54, 0x24, 0x20,       // movaps [rsp+0x20], xmm2
+        0x0F, 0x29, 0x5C, 0x24, 0x30,       // movaps [rsp+0x30], xmm3
+        0x0F, 0x29, 0x64, 0x24, 0x40,       // movaps [rsp+0x40], xmm4
+        0x0F, 0x29, 0x6C, 0x24, 0x50,       // movaps [rsp+0x50], xmm5
+
+        // Argument 1: rcx = rdi (total backpack slots)
+        0x48, 0x89, 0xF9,                   // mov rcx, rdi
+
+        // Shadow space (32 bytes, maintains 16-byte alignment)
+        0x48, 0x83, 0xEC, 0x20,             // sub rsp, 0x20
+
+        // Call handler: mov rax, <64-bit absolute address>
+        0x48, 0xB8
+    };
+
+    for (int i = 0; i < 8; ++i) {
+        code.push_back(static_cast<uint8_t>((handler_addr >> (i * 8)) & 0xFF));
+    }
+
+    std::vector<uint8_t> tail = {
+        0xFF, 0xD0,                         // call rax
+        0x48, 0x83, 0xC4, 0x20,             // add rsp, 0x20
+
+        // Copy float return value from xmm0 into xmm9
+        0x44, 0x0F, 0x28, 0xC8,             // movaps xmm9, xmm0
+
+        // Restore XMM0-XMM5
+        0x0F, 0x28, 0x6C, 0x24, 0x50,       // movaps xmm5, [rsp+0x50]
+        0x0F, 0x28, 0x64, 0x24, 0x40,       // movaps xmm4, [rsp+0x40]
+        0x0F, 0x28, 0x5C, 0x24, 0x30,       // movaps xmm3, [rsp+0x30]
+        0x0F, 0x28, 0x54, 0x24, 0x20,       // movaps xmm2, [rsp+0x20]
+        0x0F, 0x28, 0x4C, 0x24, 0x10,       // movaps xmm1, [rsp+0x10]
+        0x0F, 0x28, 0x04, 0x24,             // movaps xmm0, [rsp]
+        0x48, 0x83, 0xC4, 0x60,             // add rsp, 0x60
 
         // Restore GPRs
         0x41, 0x5B,                         // pop r11
@@ -596,6 +686,57 @@ static DWORD WINAPI WorkerThread(LPVOID lpParam) {
         g_features.push_back(feat);
     }
 
+    // 9. Backpack UI Auto-Fit Hook (keeps Actionbar visible in RUCKSACK when >56 slots)
+    {
+        sf_native::Pattern pat_bp_ui = sf_native::parse_pattern(
+            "ui.backpackSlotScale",
+            "48 83 FF 30 76 0B F3 44 0F 10 0D ?? ?? ?? ?? EB 09 F3 44 0F 10 0D ?? ?? ?? ?? 33 C0 F3 44 0F 59 C9",
+            0, 26
+        );
+        uintptr_t match_bp_ui = sf_native::scan_pattern(base_addr, module_size, pat_bp_ui);
+        if (match_bp_ui) {
+            uintptr_t target_addr = match_bp_ui + pat_bp_ui.patch_offset;
+            if (!g_backpack_ui_trampoline) {
+                g_backpack_ui_trampoline = allocate_page_near(target_addr);
+                if (g_backpack_ui_trampoline) {
+                    auto tramp_code = create_backpack_ui_trampoline(reinterpret_cast<uintptr_t>(ComputeBackpackSlotSize));
+                    memcpy(g_backpack_ui_trampoline, tramp_code.data(), tramp_code.size());
+                    DWORD old_protect;
+                    VirtualProtect(g_backpack_ui_trampoline, 4096, PAGE_EXECUTE_READ, &old_protect);
+                    snprintf(buf, sizeof(buf), "[TRAMPOLINE ALLOC] Allocated backpack UI trampoline at 0x%p", g_backpack_ui_trampoline);
+                    log_message(buf);
+                } else {
+                    log_message("[ERROR] Failed to allocate trampoline near backpack UI target address.");
+                }
+            }
+
+            if (g_backpack_ui_trampoline) {
+                g_backpack_ui_patch.name = "Backpack UI Auto-Fit (Actionbar Fix)";
+                g_backpack_ui_patch.target_address = target_addr;
+
+                int32_t disp = static_cast<int32_t>(reinterpret_cast<uintptr_t>(g_backpack_ui_trampoline) - (target_addr + 5));
+                g_backpack_ui_patch.patch_bytes = {
+                    0xE8,
+                    static_cast<uint8_t>(disp & 0xFF),
+                    static_cast<uint8_t>((disp >> 8) & 0xFF),
+                    static_cast<uint8_t>((disp >> 16) & 0xFF),
+                    static_cast<uint8_t>((disp >> 24) & 0xFF)
+                };
+                // Pad remaining 21 bytes (26 - 5) with NOPs up to 0x140b50def (xor eax, eax)
+                g_backpack_ui_patch.patch_bytes.resize(26, 0x90);
+
+                if (g_backpack_ui_patch.apply()) {
+                    g_backpack_ui_patch_active = true;
+                    snprintf(buf, sizeof(buf), "[APPLIED] %s active at 0x%llX",
+                             g_backpack_ui_patch.name.c_str(), static_cast<unsigned long long>(target_addr));
+                    log_message(buf);
+                }
+            }
+        } else {
+            log_message("[WARNING] ui.backpackSlotScale pattern not found.");
+        }
+    }
+
     log_message("=== All Native Patterns Scanned. Starting Live F9 Synchronization Loop ===");
 
     // =========================================================================
@@ -725,6 +866,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
         }
     } else if (fdwReason == DLL_PROCESS_DETACH) {
         g_running.store(false);
+        if (g_backpack_ui_patch_active) {
+            g_backpack_ui_patch.restore();
+            g_backpack_ui_patch_active = false;
+        }
         for (auto& feat : g_features) {
             if (feat.is_active) {
                 for (auto& p : feat.patches) {

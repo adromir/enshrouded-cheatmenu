@@ -76,9 +76,6 @@ local function check_enabled(key)
     if key == "rangedDamageMultiplier" then return cat_enabled("Enable_Combat") and not enabled("oneHitKill") and get_num("rangedDamageMultiplier", 100) > 100 end
     if key == "magicDamageMultiplier" then return cat_enabled("Enable_Combat") and not enabled("oneHitKill") and get_num("magicDamageMultiplier", 100) > 100 end
 
-    -- Category 4: Free Building & Reskill
-    if key:find("^freeSkillTree") then return cat_enabled("Enable_CraftingRules") and (enabled("freeCrafting") or enabled("freeReskill")) end
-
     -- Category 5: World AI, XP & Production
     if key:find("^dumbEnemies") then return cat_enabled("Enable_WorldRules") and enabled("dumbEnemies") end
     if key == "enemyPerceptionMultiplier" then return cat_enabled("Enable_WorldRules") and get_num("enemyPerceptionMultiplier", 100) ~= 100 end
@@ -183,13 +180,11 @@ local function update(delta_seconds)
             end
         end
 
-        -- Free Building & Reskill
-        if craft_cat and (enabled("freeCrafting") or enabled("freeReskill")) then
-            local t_perk = runtime.overrides.service(game_settings, "perkCostFactor")
-            if t_perk then
-                overrides:apply(t_perk.key, "freeSkillTree_perkCost", t_perk, function() return 0.0 end)
-            end
-        end
+        -- Note: Do NOT set GameSettings.perkCostFactor = 0.0 here!
+        -- In Enshrouded's engine (0x140e817a0 -> 0x140d302a0), perkCostFactor multiplies
+        -- the salvage Rune yield of magic weapons, shields, and rings; setting it to 0.0
+        -- reduces salvage Rune output to 0 and hides the "Salvage" UI option (leaving only "Delete").
+        -- Free building, perk upgrades, and skill resets are handled natively by sf-native.dll.
 
         -- World AI, XP & Production
         if world_cat then

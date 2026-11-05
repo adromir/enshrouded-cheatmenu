@@ -1511,12 +1511,13 @@ local function ApplyInventoryTweaks()
             local comps = d.components or {}
             local tDirty = false
 
-            if validBp and s_find(name, "Backpack", 1, true) then
+            if validBp and s_find(name, "Backpack_", 1, true) == 1 then
                 local newBpSlots = nil
                 for _, c in pairs(comps) do
                     if c.type == "keen::ecs::InventorySetup" then
                         local cur = type(c.value.genericSlotCount) == "number" and c.value.genericSlotCount or 8
                         local target = m_min(bpMax, m_max(8, m_floor((cur * bpMult) / 8 + 0.5) * 8))
+                        log_line(("  Backpack template '%s': %d -> %d"):format(name, cur, target), 2)
                         if c.value.genericSlotCount ~= target or c.value.availableSlotCount ~= target then
                             c.value.genericSlotCount = target
                             c.value.availableSlotCount = target
@@ -1534,6 +1535,12 @@ local function ApplyInventoryTweaks()
                                 tDirty = true
                             end
                         end
+                    end
+                end
+            elseif validBp and s_find(name, "Backpack", 1, true) then
+                for _, c in pairs(comps) do
+                    if c.type == "keen::ecs::InventorySetup" then
+                        log_line(("  Skipped non-item backpack template '%s' (slots=%s)"):format(name, tostring(c.value.genericSlotCount)), 2)
                     end
                 end
             end
@@ -2783,12 +2790,19 @@ local function ApplyCraftingTweaks()
                     local d = get_data(it, "keen::ItemInfo")
                     if not d or not d.equipment then return end
                     local eq = d.equipment
+                    local placed = tostring(eq.placedEntity or NONE_GUID)
+                    local voxObj = tostring(eq.voxelObject or NONE_GUID)
+                    local terVox = tostring(eq.terrainVoxelObject or NONE_GUID)
+                    local hasReqIng = eq.requiredCraftingIngredients and #eq.requiredCraftingIngredients > 0
+                    if placed == NONE_GUID and voxObj == NONE_GUID and terVox == NONE_GUID and not hasReqIng then
+                        return
+                    end
                     local iDirty = false
                     if eq.placementConsume ~= false then
                         eq.placementConsume = false
                         iDirty = true
                     end
-                    if eq.requiredCraftingIngredients then
+                    if hasReqIng then
                         for i = 1, #eq.requiredCraftingIngredients do
                             local req = eq.requiredCraftingIngredients[i]
                             if req and req.count and req.count > 0 then
